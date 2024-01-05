@@ -1,4 +1,3 @@
-spawn(function()
 _G.prisma = {}
 
 if _G.prisma.Loaded == true then
@@ -6,7 +5,6 @@ if _G.prisma.Loaded == true then
 elseif _G.prisma.Loaded == false or _G.prisma.Loaded == nil then
 	if not game:IsLoaded() then game.Loaded:Wait() end
 end
-
 
 
 --- Static ---
@@ -253,9 +251,15 @@ function prisma:parseInput(txt)
 				end
 
 				local fstring = string.sub(text,asub,100)
-				commandT.CallBack(fstring,args[2],args[3])
+				coroutine.wrap(function()
+					commandT.CallBack(fstring,args[2],args[3])
+					coroutine.yield()
+				end)()
 			else
-				commandT.CallBack(args[2],args[3],args[4])
+				coroutine.wrap(function()
+					commandT.CallBack(args[2],args[3],args[4])
+					coroutine.yield()
+				end)()
 			end
 
 		end
@@ -725,9 +729,8 @@ end)
 
 prisma:addBind(Enum.KeyCode.F6,function(self)
 	if clip then
-		notify("Noclip Enabled")
 		clip = false
-		function NoclipLoop()
+		Noclipping = runservice.Stepped:Connect(function()
 			if clip == false and plr.Character ~= nil then
 				for _, child in pairs(plr.Character:GetDescendants()) do
 					if child:IsA("BasePart") and child.CanCollide == true then
@@ -735,12 +738,12 @@ prisma:addBind(Enum.KeyCode.F6,function(self)
 					end
 				end
 			end
-		end
-		Noclipping = game:GetService('RunService').Stepped:Connect(NoclipLoop)
+		end)
+		notify("Noclip Enabled")
 	else
-		notify("Noclip Disabled")
 		clip = true
 		Noclipping:Disconnect()
+		notify("Noclip Disabled")
 	end
 end)
 
@@ -764,6 +767,58 @@ end)
 
 prisma:addBind(Enum.KeyCode.Delete,function()
 	prisma:executeCommand("clickdelete")
+end)
+
+local profly = false
+prisma:addBind(Enum.KeyCode.F2,function()
+	if not profly then
+		profly = true
+
+		spawn(function()
+			repeat
+				task.wait(.2)
+				local part = Instance.new("Part")
+				part.Color = Color3.new(0.843137, 0.772549, 0.603922)
+				part.Size = Vector3.new(4, 1, 4)
+				part.Parent = workspace
+				part.Transparency = 0.15
+				part.CanCollide = false
+				part.Anchored = true
+				part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0,2.6,0)
+
+
+				local mesh = Instance.new("SpecialMesh")
+				mesh.MeshType = Enum.MeshType.FileMesh
+				mesh.MeshId = "rbxassetid://6120788966"
+				mesh.TextureId = "rbxassetid://6120789019"
+				mesh.Scale = Vector3.new(1, 0.5, 1)
+				mesh.Parent = part
+				game:GetService("TweenService"):Create(mesh,TweenInfo.new(1,Enum.EasingStyle.Linear,Enum.EasingDirection.In),{
+					Scale = Vector3.new(4, 0.5, 4)
+				}):Play()
+				game:GetService("TweenService"):Create(part,TweenInfo.new(1,Enum.EasingStyle.Linear,Enum.EasingDirection.In),{
+					Transparency = 1
+				}):Play()
+				game:GetService("Debris"):AddItem(part,1)
+			until not profly
+		end)
+
+		repeat
+			task.wait()
+			pro = Instance.new("Part",workspace)
+			pro.Anchored = true
+			pro.Size = Vector3.new(5,1,5)
+			pro.Color = Color3.fromRGB(255, 255, 255)
+			pro.Material = Enum.Material.ForceField
+			pro.Transparency = 1
+
+			local debris = game:GetService("Debris")
+			debris:AddItem(pro,1)
+			pro.CFrame = plr.Character.HumanoidRootPart.CFrame - Vector3.new(0,3.5,0)
+		until not profly
+	else
+		profly = false
+	end
 end)
 
 --- Commands ---
@@ -846,21 +901,6 @@ prisma:addCMD("nameesp","esp",function(arg)
 		-- elseif arg == "true" or arg == "yes" then
 		-- ESPText.Text = xPlayer.DisplayName
 		-- end
-		coroutine.resume(coroutine.create(function()
-			while task.wait() do
-				pcall(function()
-					if xHead.Parent.Humanoid.Health <= 0 then
-						coroutine.yield()
-					end
-
-					if xPlayer:IsFriendsWith(plr.UserId) then
-						ESPText.TextColor3 = colour
-					else
-						ESPText.TextColor = xPlayer.TeamColor
-					end
-				end)
-			end
-		end))
 	end
 
 
@@ -1595,4 +1635,3 @@ end)
 
 prisma:chat("Loaded Prisma")
 prisma:chat("Version: "..prisma.version)
-end)
