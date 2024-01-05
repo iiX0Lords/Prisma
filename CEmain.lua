@@ -9,7 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "0.0.1"
+prisma.version = "1.1.1"
 prisma.commands = {}
 prisma.binds = {}
 
@@ -330,17 +330,35 @@ function prisma:log(txt)
 end
 
 function prisma:chat(text)
-	repeat
-		task.wait()
-		local Success = pcall(function()
-			game.StarterGui:SetCore("ChatMakeSystemMessage", {
+
+	local function generateMsg(msgdict)
+		return '<font color="#'..msgdict["Color"]..'"><font size="'..msgdict["FontSize"]..'"><font face="'..msgdict["Font"]..'">'..msgdict["Text"]..'</font></font></font>'
+	end
+
+	if game:GetService("TextChatService").ChatVersion == Enum.ChatVersion.LegacyChatService then
+		repeat
+			task.wait()
+			local Success = pcall(function()
+				game.StarterGui:SetCore("ChatMakeSystemMessage", {
+					Text = ">> [PRISMA]: "..text;
+					Font = Enum.Font.SourceSansBold;
+					Color = Color3.fromRGB(255, 255, 255);
+					FontSize = 25;
+				})
+			end)
+		until Success
+	else
+		local chat = game:GetService("TextChatService")
+		local channel = chat:WaitForChild("TextChannels"):WaitForChild("RBXSystem")
+
+		channel:DisplaySystemMessage(generateMsg({
 				Text = ">> [PRISMA]: "..text;
-				Font = Enum.Font.SourceSansBold;
-				Color = Color3.fromRGB(255, 255, 255);
-				FontSize = 25;
+				Font = "SourceSansBold";
+				Color = Color3.fromRGB(255, 255, 255):ToHex();
+				FontSize = 20;
 			})
-		end)
-	until Success
+		)
+	end
 end
 
 function getRoot()
@@ -819,6 +837,62 @@ prisma:addBind(Enum.KeyCode.F2,function()
 	else
 		profly = false
 	end
+end)
+
+prisma:addBind(Enum.KeyCode.F8,function()
+	prisma:executeCommand("breakvel")
+end)
+
+prisma:addBind(Enum.KeyCode.F10,function()
+	prisma:executeCommand("launch")
+end)
+
+prisma:addBind(Enum.KeyCode.T,function()
+	if profly then
+		local Sound = Instance.new("Sound",plr.Character.HumanoidRootPart)
+		Sound.SoundId = "rbxassetid://4580495407"
+		Sound.PlayOnRemove = true
+		Sound.Volume = 3
+		Sound.TimePosition = .05
+		Sound:Destroy()
+		local Anim = Instance.new("Animation")
+		Anim.AnimationId = "rbxassetid://188632011"
+		local track = plr.Character.Humanoid:LoadAnimation(Anim)
+		track:Play()
+		track:AdjustSpeed(2)
+		local Vele = Instance.new("BodyVelocity",plr.Character.HumanoidRootPart)
+		plr.Character.HumanoidRootPart.Anchored = false
+		Vele.MaxForce = Vector3.new(1,1,1) * math.huge
+		Vele.Velocity = Vector3.new(0,100,0)
+		game.Debris:AddItem(Vele,.15)
+		local part = Instance.new("Part")
+		part.Color = Color3.new(0.843137, 0.772549, 0.603922)
+		part.Size = Vector3.new(4, 1, 4)
+		part.Parent = workspace
+		part.Transparency = 0.15
+		part.CanCollide = false
+		part.Anchored = true
+		part.Position = plr.Character.HumanoidRootPart.Position - Vector3.new(0,2.6,0)
+
+
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.FileMesh
+		mesh.MeshId = "rbxassetid://6120788966"
+		mesh.TextureId = "rbxassetid://6120789019"
+		mesh.Scale = Vector3.new(1, 0.5, 1)
+		mesh.Parent = part
+		game:GetService("TweenService"):Create(mesh,TweenInfo.new(2,Enum.EasingStyle.Linear,Enum.EasingDirection.In),{
+			Scale = Vector3.new(10, 0.5,  10)
+		}):Play()
+		game:GetService("TweenService"):Create(part,TweenInfo.new(2,Enum.EasingStyle.Linear,Enum.EasingDirection.In),{
+			Transparency = 1
+		}):Play()
+		game:GetService("Debris"):AddItem(part,2)
+	end
+end)
+
+prisma:addBind(Enum.KeyCode.F1,function()
+	prisma:executeCommand("through")
 end)
 
 --- Commands ---
@@ -1418,7 +1492,7 @@ end)
 
 prisma:addCMD("refresh","re",function()
 	local old = getRoot().CFrame
-	plr.Character:Destroy()
+	plr.Character:BreakJoints()
 	reloadev = plr.CharacterAdded:Connect(function()
 		task.wait(.5)
 		getRoot().CFrame = old
@@ -1618,7 +1692,7 @@ end)
 
 prisma:addCMD("through","thru",function()
 	local rayOrigin = plr.Character.HumanoidRootPart.CFrame.p
-	local rayDirection = plr.Character.HumanoidRootPart.CFrame.LookVector * 30
+	local rayDirection = plr.Character.HumanoidRootPart.CFrame.LookVector * 5
 
 
 	local raycastResult = workspace:Raycast(rayOrigin, rayDirection)
@@ -1627,11 +1701,10 @@ prisma:addCMD("through","thru",function()
 	if raycastResult then
 		local size = raycastResult.Instance.Size * raycastResult.Normal
 		plr.Character.HumanoidRootPart.CFrame = CFrame.new(raycastResult.Position) * CFrame.new(-size)
-		prisma:chat("Woosh")
+		--prisma:chat("Woosh")
 	end
 end)
 
-
-
 prisma:chat("Loaded Prisma")
+task.wait(.05)
 prisma:chat("Version: "..prisma.version)
