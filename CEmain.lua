@@ -9,7 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "1.1.1"
+prisma.version = "1.1.2"
 prisma.commands = {}
 prisma.binds = {}
 
@@ -1691,15 +1691,27 @@ prisma:addCMD("precisionflightspeed","pflyspeed",function(integer)
 end)
 
 prisma:addCMD("through","thru",function()
+
+	
+
 	local rayOrigin = plr.Character.HumanoidRootPart.CFrame.p
 	local rayDirection = plr.Character.HumanoidRootPart.CFrame.LookVector * 5
+	local lookvec = getRoot().CFrame.LookVector
 
 
 	local raycastResult = workspace:Raycast(rayOrigin, rayDirection)
 
 
 	if raycastResult then
-		local size = raycastResult.Instance.Size * raycastResult.Normal
+		local size = nil
+		if raycastResult.Normal.X ~= 0 then
+			size = raycastResult.Instance.Size.X
+		elseif raycastResult.Normal.Z ~= 0 then
+			size = raycastResult.Instance.Size.Z
+		end
+
+		print(raycastResult.Normal)
+		local size = size * raycastResult.Normal
 		plr.Character.HumanoidRootPart.CFrame = CFrame.new(raycastResult.Position) * CFrame.new(-size)
 		--prisma:chat("Woosh")
 	end
