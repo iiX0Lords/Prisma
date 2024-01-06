@@ -9,7 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "1.1.2"
+prisma.version = "1.1.3"
 prisma.commands = {}
 prisma.binds = {}
 
@@ -1690,30 +1690,113 @@ prisma:addCMD("precisionflightspeed","pflyspeed",function(integer)
 	pfSpeed = tonumber(integer) or 100
 end)
 
+function visualizeRay(origin,result)
+	if result then
+		local distance = (origin - result.Position).Magnitude
+		local p = Instance.new("Part")
+		p.Anchored = true
+		p.Parent = workspace
+		p.CanCollide = false
+		p.Color = Color3.fromRGB(255,0,0)
+		p.Size = Vector3.new(0.1, 0.1, distance)
+		p.CFrame = CFrame.lookAt(origin, result.Position)*CFrame.new(0, 0, -distance/2)
+		return p
+	end
+end
+
 prisma:addCMD("through","thru",function()
+	local function GetNormalFromFace(part, normalId)
+		return part.CFrame:VectorToWorldSpace(Vector3.FromNormalId(normalId))
+	end
 
+	local function NormalToFace(normalVector, part)
+
+		local TOLERANCE_VALUE = 1 - 0.001
+		local allFaceNormalIds = {
+			Enum.NormalId.Front,
+			Enum.NormalId.Back,
+			Enum.NormalId.Bottom,
+			Enum.NormalId.Top,
+			Enum.NormalId.Left,
+			Enum.NormalId.Right
+		}    
 	
+		for _, normalId in pairs( allFaceNormalIds ) do
+			if GetNormalFromFace(part, normalId):Dot(normalVector) > TOLERANCE_VALUE then
+				return normalId
+			end
+		end
+		
+		return nil
+	
+	end
+	
+	local function addRotation(part)
+		return part.CFrame.Rotation.X+part.CFrame.Rotation.Y+part.CFrame.Rotation.Z
+	end
 
-	local rayOrigin = plr.Character.HumanoidRootPart.CFrame.p
-	local rayDirection = plr.Character.HumanoidRootPart.CFrame.LookVector * 5
-	local lookvec = getRoot().CFrame.LookVector
 
-
-	local raycastResult = workspace:Raycast(rayOrigin, rayDirection)
-
-
-	if raycastResult then
+	local function tpshit(root,raycastResult)
 		local size = nil
-		if raycastResult.Normal.X ~= 0 then
+		local face = NormalToFace(raycastResult.Normal,raycastResult.Instance)
+
+		if face == Enum.NormalId.Left or face == Enum.NormalId.Right then
 			size = raycastResult.Instance.Size.X
-		elseif raycastResult.Normal.Z ~= 0 then
+		elseif face == Enum.NormalId.Front or face == Enum.NormalId.Back then
 			size = raycastResult.Instance.Size.Z
 		end
 
-		print(raycastResult.Normal)
-		local size = size * raycastResult.Normal
-		plr.Character.HumanoidRootPart.CFrame = CFrame.new(raycastResult.Position) * CFrame.new(-size)
-		--prisma:chat("Woosh")
+		size = size + 4
+
+		local new = root.CFrame * CFrame.new(0,0,-size)
+		root.CFrame = new
+		return new
+	end
+
+	local root = Instance.new("Part",workspace)
+	root.Anchored = true
+	root.CanCollide = false
+	root.CFrame = getRoot().CFrame
+	root.Size = Vector3.new(1.5,1.5,1.5)
+
+	local rayOrigin = root.CFrame.p
+	local rayDirection = root.CFrame.LookVector * 10
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = {getRoot().Parent,root}
+
+
+	local raycastResult = workspace:Raycast(rayOrigin, rayDirection,params)
+
+	local visss = {}
+
+	if raycastResult then
+		--local vis = visualizeRay(rayOrigin,raycastResult)
+		--vis.Parent = game.Lighting
+		--table.insert(visss,vis)
+		local pos = tpshit(root,raycastResult).Position
+
+		for i = 1,5 do
+			rayOrigin = pos
+			rayDirection = root.CFrame.LookVector * 8
+			raycastResult = workspace:Raycast(rayOrigin, rayDirection,params)
+
+			if raycastResult then
+				--local vis = visualizeRay(rayOrigin,raycastResult)
+				--vis.Parent = game.Lighting
+				--table.insert(visss,vis)
+				pos = tpshit(root,raycastResult).Position
+			else
+				break
+			end
+		end
+		for i,v in pairs(visss) do
+			v.Parent = workspace
+		end
+		getRoot().CFrame = root.CFrame
+		root:Destroy()
+	else
+		root:Destroy()
 	end
 end)
 
