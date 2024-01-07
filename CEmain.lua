@@ -929,6 +929,17 @@ prisma:addCMD("togglebind","bind",function(arg)
 	end
 end)
 
+local espConnections = {}
+
+function breakConnection(name)
+	for i,v in pairs(espConnections) do
+		if v.Player == name then
+			v.Connection:Disconnect()
+			table.remove(espConnections,i)
+		end
+	end
+end
+
 prisma:addCMD("nameesp","esp",function(arg)
 	local cmdlp = game.Players.LocalPlayer
 	local cmdp = game.Players
@@ -970,6 +981,24 @@ prisma:addCMD("nameesp","esp",function(arg)
 			ESPText.Text = xPlayer.DisplayName.." ("..xPlayer.Name..")"
 		end
 
+		local connection = runservice.RenderStepped:Connect(function()
+
+			if xPlayer.Character ~= nil then
+				local human = xPlayer.Character:FindFirstChild("Humanoid")
+				if human then
+					if human.Health <= 0 then
+						breakConnection(xPlayer.Name)
+					end
+				end
+			end
+
+			ESPText.TextColor = xPlayer.TeamColor
+		end)
+		table.insert(espConnections,{
+			Player = xPlayer.Name,
+			Connection = connection
+		})
+
 		-- if arg == nil then
 
 		-- elseif arg == "true" or arg == "yes" then
@@ -1007,6 +1036,14 @@ prisma:addCMD("nameesp","esp",function(arg)
 		end)
 	end)
 
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+	breakConnection(player.Name)
+end)
+
+prisma:addCMD("debugconnectiontest","dbct",function()
+	print(#espConnections)
 end)
 
 prisma:addCMD("unesp",nil,function()
@@ -1798,6 +1835,27 @@ prisma:addCMD("through","thru",function()
 	else
 		root:Destroy()
 	end
+end)
+
+prisma:addCMD("urinate","piss",function()
+	local enabled = false
+	local pissed = 0
+
+
+	repeat
+		task.wait()
+		local piss = Instance.new("Part",workspace)
+		piss.Size = Vector3.new(0.2,0.2,0.2)
+		piss.Color = Color3.fromRGB(255, 219, 100)
+		piss.CFrame = getRoot().CFrame * CFrame.new(0,-0.5,0)
+		debris:AddItem(piss,1)
+		pissed = pissed + 1
+
+		if pissed >= 50 then
+			enabled = false
+		end
+
+	until not enabled
 end)
 
 prisma:chat("Loaded Prisma")
