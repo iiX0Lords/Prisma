@@ -9,7 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "<!#FV> 1.1.5 </#FV>"
+prisma.version = "<!#FV> 1.1.6 </#FV>"
 prisma.version = string.sub(version,8,12)
 prisma.commands = {}
 prisma.binds = {}
@@ -747,8 +747,6 @@ function notify(text,lifetime,format)
 		newNotify:Destroy()
 	end)
 end
-
-
 
 --- Binds ---
 
@@ -1833,27 +1831,6 @@ prisma:addCMD("through","thru",function()
 	else
 		root:Destroy()
 	end
-end)
-
-prisma:addCMD("urinate","piss",function()
-	local enabled = false
-	local pissed = 0
-
-
-	repeat
-		task.wait()
-		local piss = Instance.new("Part",workspace)
-		piss.Size = Vector3.new(0.2,0.2,0.2)
-		piss.Color = Color3.fromRGB(255, 219, 100)
-		piss.CFrame = getRoot().CFrame * CFrame.new(0,-0.5,0)
-		debris:AddItem(piss,1)
-		pissed = pissed + 1
-
-		if pissed >= 50 then
-			enabled = false
-		end
-
-	until not enabled
 end)
 
 prisma:chat("Loaded Prisma")
