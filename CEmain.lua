@@ -9,8 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "<!#FV> 1.1.6 </#FV>"
-prisma.version = string.sub(version,8,12)
+prisma.version = "1.1.5"
 prisma.commands = {}
 prisma.binds = {}
 
@@ -39,21 +38,6 @@ local LUM = 1
 local SPEED = 1
 local colour = nil
 local johntoth = "gay"
-local col = Color3.fromRGB(255,0,0);
-
-function makeAnimeTitties()
-    local tity1 = Instance.new("Part",workspace)
-    tity1.CanCollide = false
-    tity1.Shape = "Ball"
-    tity1.Size = Vector3.new(6,6,6)
-    tity1.Color = Color3.fromRGB(255,0,0)
-
-    local tity2 = tity1:Clone()
-
-    tity1.CFrame = plr.Character.HumanoidRootPart.CFrame
-    tity2.Parent = workspace
-    tity2.CFrame = plr.Character.HumanoidRootPart.CFrame
-end
 
 
 function makeGUI()
