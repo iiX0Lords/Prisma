@@ -1842,6 +1842,26 @@ if game.PlaceId == 155615604 then
 		sM["Spread"] = 0
 		sM["AutoFire"] = true
 	end)
+
+
+	local instantRespawn = false
+	prisma:addCMD("instantrespawn","instaspawn",function()
+		instantRespawn = not instantRespawn
+	end)
+
+	runservice.RenderStepped:Connect(function(deltaTime)
+		if instantRespawn == true then
+			if game.Players.LocalPlayer.Character ~= nil then
+				if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+					if getRoot().Parent.Humanoid.Health <= 0 then
+						local A_1 = "\66\114\111\121\111\117\98\97\100\100"
+						local Event = game:GetService("Workspace").Remote.loadchar
+						Event:InvokeServer(A_1)
+					end
+				end
+			end
+		end
+	end)
 end
 
 
