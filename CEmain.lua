@@ -1825,10 +1825,9 @@ if game.PlaceId == 155615604 then
 		local sM = require(gun:FindFirstChild("GunStates"))
 		sM["MaxAmmo"] = 9999991
 		sM["StoredAmmo"] = 9999991
-		sM["FireRate"] = 0.001
+		sM["FireRate"] = 0.01
 		sM["AmmoPerClip"] = 9999991
 		sM["ReloadTime"] = 0.05
-		sM["Bullets"] = 1
 		sM["AutoFire"] = true
 	end)
 	prisma:addCMD("m4a1","m4",function()
