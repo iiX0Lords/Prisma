@@ -1825,9 +1825,8 @@ if game.PlaceId == 155615604 then
 		local sM = require(gun:FindFirstChild("GunStates"))
 		sM["MaxAmmo"] = 9999991
 		sM["StoredAmmo"] = 9999991
-		sM["FireRate"] = 0.0001
+		sM["FireRate"] = 0.001
 		sM["AmmoPerClip"] = 9999991
-		sM["Range"] = 50000
 		sM["ReloadTime"] = 0.05
 		sM["Bullets"] = 1
 		sM["AutoFire"] = true
