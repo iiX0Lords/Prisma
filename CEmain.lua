@@ -763,26 +763,6 @@ prisma:addBind(Enum.KeyCode.V,function()
 	end)
 end)
 
-prisma:addBind(Enum.KeyCode.F6,function(self)
-	if clip then
-		clip = false
-		Noclipping = runservice.Stepped:Connect(function()
-			if clip == false and plr.Character ~= nil then
-				for _, child in pairs(plr.Character:GetDescendants()) do
-					if child:IsA("BasePart") and child.CanCollide == true then
-						child.CanCollide = false
-					end
-				end
-			end
-		end)
-		notify("Noclip Enabled")
-	else
-		clip = true
-		Noclipping:Disconnect()
-		notify("Noclip Disabled")
-	end
-end)
-
 prisma:addBind(Enum.KeyCode.F5,function()
 	if FLYING then
 		prisma:executeCommand("unfly")
