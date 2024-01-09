@@ -9,10 +9,9 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "1.1.7"
+prisma.version = "1.1.8"
 prisma.commands = {}
 prisma.binds = {}
-
 --- Locals ---
 local plr = game.Players.LocalPlayer
 local mouse = plr:GetMouse()
@@ -27,19 +26,16 @@ local debris = game:GetService("Debris")
 
 
 --- Dynamic ---
-FLYING = false
-QEfly = true
-flyspeed = 1
-vehicleflyspeed = 1
-clip = true
-local hue = 0
-local SAT = 1
-local LUM = 1
-local SPEED = 1
-local colour = nil
+local FLYING = false
+local QEfly = true
+local flyspeed = 1
+local vehicleflyspeed = 1
 local johntoth = "gay"
 
 
+local GUI
+local Temp
+local Input
 function makeGUI()
 	-- Instances:
 
@@ -371,12 +367,14 @@ function round(n)
 	return math.floor(n + 0.5)
 end
 
+flyKeyDown = nil
+flyKeyUp = nil
 function sFLY(vfly)
-	repeat wait() until plr and plr.Character and getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+	repeat wait() until plr and plr.Character and getRoot() and plr.Character:FindFirstChildOfClass("Humanoid")
 	repeat wait() until mouse
 	if flyKeyDown or flyKeyUp then flyKeyDown:Disconnect() flyKeyUp:Disconnect() end
 
-	local T = getRoot(plr.Character)
+	local T = getRoot()
 	local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
 	local lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
 	local SPEED = 0
@@ -939,7 +937,7 @@ prisma:addCMD("nameesp","esp",function(arg)
 		ESP.ExtentsOffset = Vector3.new(0, 1, 0)
 		ESP.Size = UDim2.new(0, 5, 0, 5)
 		ESPText.Name = "NAME"
-		ESPText.BackgroundColor3 = Color3.new(255, 255, 255)
+		ESPText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		ESPText.BackgroundTransparency = 1
 		ESPText.BorderSizePixel = 0
 		ESPText.Position = UDim2.new(0, 0, 0, -40)
@@ -1047,11 +1045,7 @@ prisma:addCMD("walkspeed","ws",function(arg)
 		end
 		plr.Character.Humanoid.WalkSpeed = speed
 	end)
-	if suc then
-		task.wait(.3)
-	else
-		task.wait(.3)
-	end
+	task.wait(.3)
 end)
 
 prisma:addCMD("jumppower","jp",function(arg)
@@ -1062,11 +1056,7 @@ prisma:addCMD("jumppower","jp",function(arg)
 		end
 		plr.Character.Humanoid.JumpPower = jump
 	end)
-	if suc then
-		task.wait(.3)
-	else
-		task.wait(.3)
-	end
+	task.wait(.3)
 end)
 
 prisma:addCMD("suicide","reset",function(arg)
@@ -1090,11 +1080,7 @@ prisma:addCMD("loopws","lws",function(speed)
 		end)
 		plr.Character.Humanoid.WalkSpeed = setspeed
 	end)
-	if suc then
-		task.wait(.3)
-	else
-		task.wait(.3)
-	end
+	task.wait(.3)
 end)
 
 prisma:addCMD("unloopws","unlws",function()
@@ -1296,6 +1282,7 @@ prisma:addCMD("unfreeze","thaw",nil,function()
 	getRoot().Anchored = false
 end)
 
+local animTrack
 prisma:addCMD('dance', nil, "Dances",function()
 	local dances = {"27789359", "30196114", "248263260", "45834924", "33796059", "28488254", "52155728"}
 	local animation = Instance.new("Animation")        animation.AnimationId = "rbxassetid://" .. dances[math.random(1, #dances)]
@@ -1329,6 +1316,8 @@ prisma:addCMD("flyspeed","fspeed",nil,function(speed)
 	flyspeed = tonumber(speed) or 1
 end)
 
+local cor
+local spawnpart
 prisma:addCMD("setspawn","spawn",nil,function()
 	local x,y,z = round(plr.Character.HumanoidRootPart.Position.X),round(plr.Character.HumanoidRootPart.Position.Y),round(plr.Character.HumanoidRootPart.Position.Z)
 	notify("Set spawn at "..tostring(Vector3.new(x,y,z)),2)
@@ -1400,6 +1389,7 @@ prisma:addCMD("serverpopulation","pop",function()
 	notify(#game.Players:GetPlayers().." players")
 end)
 
+local headsitRun
 prisma:addCMD("headsit","climb",function(arg)
 	local target = prisma:findplr(arg)
 	if target then
@@ -1415,20 +1405,6 @@ end)
 prisma:addCMD("unheadsit","unclimb",function(arg)
 	if headsitRun then
 		headsitRun:Disconnect()
-	end
-end)
-
-prisma:addCMD("toolloop","tool",function(arg)
-	toolloop = runservice.RenderStepped:Connect(function()
-		pcall(function()
-			plr.Character:FindFirstChildOfClass("Tool"):Activate()
-		end)
-	end)
-end)
-
-prisma:addCMD("untoolloop","unloop",function(arg)
-	if toolloop then
-		toolloop:Disconnect()
 	end
 end)
 
@@ -1462,11 +1438,7 @@ prisma:addCMD("loopjp","llp",function(speed)
 		end)
 		plr.Character.Humanoid.JumpPower = setspeed
 	end)
-	if suc then
-		task.wait(.3)
-	else
-		task.wait(.3)
-	end
+	task.wait(.3)
 end)
 
 
@@ -1525,21 +1497,6 @@ prisma:addCMD("help",nil,function()
 	prisma:chat("Press F9 to see commands")
 end)
 
-prisma:addCMD("loopsit","lsit",function()
-	sitloop = runservice.RenderStepped:Connect(function()
-		pcall(function()
-			if plr.Character.Humanoid.Sit ~= true then
-				plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + Vector3.new(0,2,0)
-			end
-
-			plr.Character.Humanoid.Sit = true
-		end)
-	end)
-end)
-prisma:addCMD("unloopsit","unlsit",function()
-	sitloop:Disconnect()
-end)
-
 prisma:addCMD("spin",nil,function(speed)
 	local spinSpeed = tonumber(speed) or 20
 	for i,v in pairs(getRoot():GetChildren()) do
@@ -1561,6 +1518,7 @@ prisma:addCMD("unspin",nil,function()
 	end
 end)
 
+local undo
 prisma:addCMD("precisionflight","pfly",function(arg)
 	task.wait(1)
 	-- plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.rad(0),math.rad(180),math.rad(0))
