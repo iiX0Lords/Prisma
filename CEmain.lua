@@ -32,7 +32,6 @@ local flyspeed = 1
 local vehicleflyspeed = 1
 local johntoth = "gay"
 
-
 local GUI
 local Temp
 local Input
@@ -1772,6 +1771,85 @@ prisma:addCMD("through","thru",function()
 		root:Destroy()
 	else
 		root:Destroy()
+	end
+end)
+
+
+local teleoffset = 9000
+function teleportWithoutTween(cframe)
+	local root = getRoot()
+	root.CFrame = root.CFrame * CFrame.new(0,teleoffset,0)
+	task.wait(.08)
+	root.CFrame = cframe
+end
+
+local dodgeEnabled = false
+local Held = false
+local origin
+local ogSubject
+uis.InputBegan:Connect(function(inputObject)
+	if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+		Held = true
+		if dodgeEnabled then
+			ogSubject = workspace.CurrentCamera.CameraSubject
+			local root = getRoot()
+			origin = Instance.new("Part",workspace)
+			origin.Position = root.Position
+			origin.Anchored = true
+			origin.CanCollide = false
+			origin.Transparency = 1
+			workspace.CurrentCamera.CameraSubject = origin
+		end
+	end
+end)
+
+uis.InputEnded:Connect(function(inputObject)
+	if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+		Held = false
+		if dodgeEnabled then
+			workspace.CurrentCamera.CameraSubject = ogSubject
+			origin:Destroy()
+		end
+	end
+end)
+
+prisma:addCMD("dodge","dod",function()
+	local dodgeoffset = 8
+	local dodgeRenderstep
+	
+	function dodgeEnable()
+		local function getRand()
+			return math.random(dodgeoffset*-1,dodgeoffset)
+		end
+		
+		
+		dodgeRenderstep = coroutine.create(function()
+			while task.wait(.1) do
+				if dodgeRenderstep == nil or dodgeRenderstep == false then
+					break
+				end
+				
+				if Held and dodgeEnabled then
+					teleportWithoutTween(origin.CFrame*CFrame.new(getRand(),math.random(0,dodgeoffset),getRand()))
+				end
+			end
+			coroutine.yield()
+		end)
+		coroutine.resume(dodgeRenderstep)
+	end
+
+	function dodgeDisable()
+		workspace.CurrentCamera.CameraSubject = ogSubject
+		origin:Destroy()
+		dodgeRenderstep = nil
+	end
+
+	if dodgeEnabled then
+		dodgeEnabled = false
+		dodgeDisable()
+	else
+		dodgeEnabled = true
+		dodgeEnable()
 	end
 end)
 
