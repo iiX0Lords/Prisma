@@ -760,6 +760,7 @@ prisma:addBind(Enum.KeyCode.F3,function()
 	end
 end)
 
+local delClipboard = {}
 prisma:addBind(Enum.KeyCode.Delete,function()
 	prisma:executeCommand("clickdelete")
 end)
@@ -1090,10 +1091,30 @@ prisma:addCMD("unloopws","unlws",function()
 	end)
 end)
 
-prisma:addCMD("clickdelete",nil,function()
+prisma:addCMD("clickdelete","delete",function()
 	pcall(function()
-		mouse.Target:Destroy()
+		local target = mouse.Target
+		if target:IsA("BasePart") then
+			table.insert(delClipboard,{
+				instance = target,
+				parent = target.Parent,
+				children = target:GetChildren()
+			})
+		end
+		target:Destroy()
 	end)
+end)
+
+prisma:addCMD("undodelete","undel",function()
+	local tab = delClipboard[#delClipboard]
+	if tab ~= nil and tab ~= 0 then
+		local inst = tab.instance:Clone()
+		inst.Parent = tab.parent
+		for i,v in pairs(tab.children) do
+			v:Clone().Parent = inst
+		end
+		table.remove(delClipboard,#delClipboard)
+	end
 end)
 
 prisma:addCMD("goto","tp","Teleports to specified player",function(player)
