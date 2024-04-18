@@ -9,7 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "1.2.1"
+prisma.version = "2.0.1"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -55,7 +55,7 @@ function makeGUI()
 	--Properties:
 
 	GUI.Name = "Prisma"
-	GUI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	GUI.Parent = game.CoreGui--game.Players.LocalPlayer:WaitForChild("PlayerGui")
 	GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	GUI.ResetOnSpawn = false
 
@@ -1931,7 +1931,7 @@ prisma:addCMD("rejoin","rj",function()
 	local Players = game.Players
 	local TeleportService = game:GetService("TeleportService")
 	if #Players:GetPlayers() <= 1 then
-		Players.LocalPlayer:Kick("\nRejoining...")
+		Players.LocalPlayer:Kick("\nHeheha...")
 		wait()
 		TeleportService:Teleport(game.PlaceId, Players.LocalPlayer)
 	else
@@ -1939,6 +1939,6 @@ prisma:addCMD("rejoin","rj",function()
 	end
 end)
 
-prisma:chat("Loaded Prisma")
+prisma:chat("Loaded Prisma-V2")
 task.wait(.05)
 prisma:chat("Version: "..prisma.version)
