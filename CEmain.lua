@@ -750,6 +750,32 @@ prisma:addBind(Enum.KeyCode.F5,function()
 	end
 end)
 
+local Noclipping = nil
+local Clip = true
+prisma:addBind(Enum.KeyCode.F6,function()
+	if Clip then
+		Clip = false
+		wait(0.1)
+		local function NoclipLoop()
+			if Clip == false and plr.Character ~= nil then
+				for _, child in pairs(plr.Character:GetDescendants()) do
+					if child:IsA("BasePart") and child.CanCollide == true then
+						child.CanCollide = false
+					end
+				end
+			end
+		end
+		Noclipping = runservice.Stepped:Connect(NoclipLoop)
+		notify("Noclip On",2)
+	else
+		if Noclipping then
+			Noclipping:Disconnect()
+		end
+		Clip = true
+		notify("Noclip Off",2)
+	end
+end)
+
 prisma:addBind(Enum.KeyCode.F3,function()
 	if FLYING then
 		NOFLY()
@@ -1901,6 +1927,17 @@ if game.PlaceId == 155615604 then
 	end)
 end
 
+prisma:addCMD("rejoin","rj",function()
+	local Players = game.Players
+	local TeleportService = game:GetService("TeleportService")
+	if #Players:GetPlayers() <= 1 then
+		Players.LocalPlayer:Kick("\nRejoining...")
+		wait()
+		TeleportService:Teleport(game.PlaceId, Players.LocalPlayer)
+	else
+		TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Players.LocalPlayer)
+	end
+end)
 
 prisma:chat("Loaded Prisma")
 task.wait(.05)
