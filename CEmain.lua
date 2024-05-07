@@ -7,6 +7,7 @@ elseif _G.prisma.Loaded == false or _G.prisma.Loaded == nil then
 end
 
 local TeleportCheck = false
+-- selene: allow(undefined_variable)
 local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 game.Players.LocalPlayer.OnTeleport:Connect(function(State)
 	if (not TeleportCheck) and queueteleport then
