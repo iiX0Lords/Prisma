@@ -18,7 +18,7 @@ end)
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.4.3"
+prisma.version = "2.4.4"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -1157,7 +1157,7 @@ prisma:addCMD("undodelete","undel",function()
 	end
 end)
 
-prisma:addCMD("goto","tp","Teleports to specified player",function(player)
+prisma:addCMD("goto","to","Teleports to specified player",function(player)
 	target = prisma:findplr(player)
 	if target then
 		plr.Character.Humanoid.Jump = true
