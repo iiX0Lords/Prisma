@@ -9,7 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.0.2"
+prisma.version = "2.2.2"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -30,7 +30,6 @@ local FLYING = false
 local QEfly = true
 local flyspeed = 1
 local vehicleflyspeed = 1
-local johntoth = "gay"
 
 local GUI
 local Temp
@@ -733,12 +732,18 @@ end
 
 prisma:addBind(Enum.KeyCode.V,function()
 	if mouse.Target == nil then return end
-	plr.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
-	
-	plr.Character.HumanoidRootPart.CFrame = mouse.Hit + Vector3.new(0,5,0)
-	
-	delay(1,function()
-		plr.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+	pcall(function()
+		local humanoid = getRoot().Parent:FindFirstChild("Humanoid")
+		local hipHeight = humanoid and humanoid.HipHeight > 0 and (humanoid.HipHeight + 1)
+		local rootPart = getRoot()
+		local rootPartPosition = rootPart.Position
+		local hitPosition = mouse.Hit.Position
+		local newCFrame = CFrame.new(
+			hitPosition, 
+			Vector3.new(rootPartPosition.X, hitPosition.Y, rootPartPosition.Z)
+		) * CFrame.Angles(0, math.pi, 0)
+
+		rootPart.CFrame = newCFrame + Vector3.new(0, hipHeight or 4, 0)
 	end)
 end)
 
