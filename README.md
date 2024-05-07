@@ -1,3 +1,3 @@
 # Prisma
 
-admins commands for rblx exploits
+Personal Client Sided Admin Commads
