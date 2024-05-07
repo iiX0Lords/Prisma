@@ -1944,6 +1944,15 @@ prisma:addCMD("rejoin","rj",function()
 	end
 end)
 
-prisma:chat("Loaded Prisma-V2")
+local TeleportCheck = false
+local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+plr.OnTeleport:Connect(function(State)
+	if (not TeleportCheck) and queueteleport then
+		TeleportCheck = true
+		queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/CEmain.lua'))()")
+	end
+end)
+
+prisma:chat("Loaded Prisma")
 task.wait(.05)
 prisma:chat("Version: "..prisma.version)
