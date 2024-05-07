@@ -9,7 +9,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.0.1"
+prisma.version = "2.0.2"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -616,7 +616,7 @@ function formatText(text)
 	return text
 end
 
-function notify(text,lifetime,format)
+function prisma:notify(text,lifetime,format)
 	if lifetime == nil then
 		lifetime = 3
 	end
@@ -766,13 +766,13 @@ prisma:addBind(Enum.KeyCode.F6,function()
 			end
 		end
 		Noclipping = runservice.Stepped:Connect(NoclipLoop)
-		notify("Noclip On",2)
+		prisma:notify("Noclip On",2)
 	else
 		if Noclipping then
 			Noclipping:Disconnect()
 		end
 		Clip = true
-		notify("Noclip Off",2)
+		prisma:notify("Noclip Off",2)
 	end
 end)
 
@@ -905,7 +905,7 @@ end)
 prisma:addCMD("togglebind","bind",function(arg)
 	local an;
 	if arg == "all" then
-		notify("Toggled All Binds")
+		prisma:notify("Toggled All Binds")
 		for i,v in pairs(prisma.binds) do
 			if v.Enabled then
 				v.Enabled = false
@@ -917,10 +917,10 @@ prisma:addCMD("togglebind","bind",function(arg)
 		for i,v in pairs(prisma.binds) do
 			if string.sub(string.lower(tostring(v.Key)),14,100) == arg then
 				if v.Enabled then
-					notify("Disabled bind for "..tostring(v.Key))
+					prisma:notify("Disabled bind for "..tostring(v.Key))
 					v.Enabled = false
 				else
-					notify("Enabled bind for "..tostring(v.Key))
+					prisma:notify("Enabled bind for "..tostring(v.Key))
 					v.Enabled = true
 				end
 			else
@@ -928,7 +928,7 @@ prisma:addCMD("togglebind","bind",function(arg)
 			end
 		end
 		if an then
-			notify("No bind with that keycode")
+			prisma:notify("No bind with that keycode")
 		end
 	end
 end)
@@ -1366,7 +1366,7 @@ local cor
 local spawnpart
 prisma:addCMD("setspawn","spawn",nil,function()
 	local x,y,z = round(plr.Character.HumanoidRootPart.Position.X),round(plr.Character.HumanoidRootPart.Position.Y),round(plr.Character.HumanoidRootPart.Position.Z)
-	notify("Set spawn at "..tostring(Vector3.new(x,y,z)),2)
+	prisma:notify("Set spawn at "..tostring(Vector3.new(x,y,z)),2)
 	if cor ~= nil then
 		cor:Disconnect()
 	end
@@ -1390,7 +1390,7 @@ prisma:addCMD("setspawn","spawn",nil,function()
 			spawnpart.Anchored = false
 			weld.Part0 = spawnpart
 			weld.Part1 = raycastResult.Instance
-			notify("Rayhit",3)
+			prisma:notify("Rayhit",3)
 		end
 	end
 
@@ -1403,7 +1403,7 @@ end)
 
 prisma:addCMD("deletespawn","unspawn",nil,function()
 	if cor ~= nil then
-		notify("Deleted spawn",2)
+		prisma:notify("Deleted spawn",2)
 		cor:Disconnect()
 		spawnpart:Destroy()
 	end
@@ -1432,7 +1432,7 @@ end)
 local chams = false
 
 prisma:addCMD("serverpopulation","pop",function()
-	notify(#game.Players:GetPlayers().." players")
+	prisma:notify(#game.Players:GetPlayers().." players")
 end)
 
 local headsitRun
@@ -1510,7 +1510,7 @@ prisma:addCMD("waypoint","wp",function(name)
 			Name = name,
 			CF = getRoot().CFrame
 		})
-		notify("Set waypoint "..name.." at "..tostring(math.round(getRoot().Position.X)).." "..
+		prisma:notify("Set waypoint "..name.." at "..tostring(math.round(getRoot().Position.X)).." "..
 			tostring(math.round(getRoot().Position.Y)).." "..
 			tostring(math.round(getRoot().Position.Z)))
 	else
@@ -1521,7 +1521,7 @@ prisma:addCMD("waypoint","wp",function(name)
 			end
 		end
 		getRoot().CFrame = act.CF
-		notify("Teleported to "..act.Name)
+		prisma:notify("Teleported to "..act.Name)
 	end
 end)
 
