@@ -17,7 +17,7 @@ end)
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.3.2"
+prisma.version = "2.4.2"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -1953,6 +1953,20 @@ end)
 
 prisma:addCMD("dex",nil,function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+end)
+
+prisma:addCMD("replaceshiftlockbind","replaceshift",function(arg)
+	local keys = "LeftControl,RightControl"
+	local mouseLockController = plr.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("CameraModule"):WaitForChild("MouseLockController")
+	local obj = mouseLockController:FindFirstChild("BoundKeys")
+	if obj then
+		obj.Value = keys
+	else
+		obj = Instance.new("StringValue")
+		obj.Name = "BoundKeys"
+		obj.Value = keys
+		obj.Parent = mouseLockController
+	end
 end)
 
 prisma:chat("Loaded Prisma")
