@@ -6,10 +6,18 @@ elseif _G.prisma.Loaded == false or _G.prisma.Loaded == nil then
 	if not game:IsLoaded() then game.Loaded:Wait() end
 end
 
+local TeleportCheck = false
+local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+game.Players.LocalPlayer.OnTeleport:Connect(function(State)
+	if (not TeleportCheck) and queueteleport then
+		TeleportCheck = true
+		queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/CEmain.lua'))()")
+	end
+end)
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.2.2"
+prisma.version = "2.3.2"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -1905,33 +1913,6 @@ prisma:addCMD("dodge","dod",function()
 	end
 end)
 
---- Prisonlife stuff ---
-if game.PlaceId == 155615604 then
-	prisma:addCMD("modgun","mod",function()
-		local player = game:GetService("Players").LocalPlayer
-		local gun = player.Character:FindFirstChildOfClass("Tool")
-		local sM = require(gun:FindFirstChild("GunStates"))
-		sM["MaxAmmo"] = 9999991
-		sM["StoredAmmo"] = 9999991
-		sM["FireRate"] = 0.01
-		sM["AmmoPerClip"] = 9999991
-		sM["ReloadTime"] = 0.05
-		sM["AutoFire"] = true
-	end)
-	prisma:addCMD("m4a1","m4",function()
-		local player = game:GetService("Players").LocalPlayer
-		local gun = player.Character:FindFirstChildOfClass("Tool")
-		local sM = require(gun:FindFirstChild("GunStates"))
-		sM["MaxAmmo"] = 30
-		sM["StoredAmmo"] = 30
-		sM["FireRate"] = 0.085
-		sM["AmmoPerClip"] = 30
-		sM["ReloadTime"] = 2
-		sM["Spread"] = 0
-		sM["AutoFire"] = true
-	end)
-end
-
 prisma:addCMD("rejoin","rj",function()
 	local Players = game.Players
 	local TeleportService = game:GetService("TeleportService")
@@ -1944,13 +1925,34 @@ prisma:addCMD("rejoin","rj",function()
 	end
 end)
 
-local TeleportCheck = false
-local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
-plr.OnTeleport:Connect(function(State)
-	if (not TeleportCheck) and queueteleport then
-		TeleportCheck = true
-		queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/CEmain.lua'))()")
+local toolloop
+prisma:addCMD("toolloop","tool",function(arg)
+	toolloop = runservice.RenderStepped:Connect(function()
+		pcall(function()
+			plr.Character:FindFirstChildOfClass("Tool"):Activate()
+		end)
+	end)
+end)
+prisma:addCMD("untoolloop","unloop",function(arg)
+	if toolloop then
+		toolloop:Disconnect()
 	end
+end)
+
+prisma:addCMD("hyrdo","rspy",function()
+	local owner = "Upbolt"
+	local branch = "revision"
+
+	local function webImport(file)
+		return loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format(owner, branch, file)), file .. '.lua')()
+	end
+
+	webImport("init")
+	webImport("ui/main")
+end)
+
+prisma:addCMD("dex",nil,function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
 end)
 
 prisma:chat("Loaded Prisma")
