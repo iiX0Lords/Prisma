@@ -6,7 +6,7 @@ elseif _G.prisma.Loaded == false or _G.prisma.Loaded == nil then
 	if not game:IsLoaded() then game.Loaded:Wait() end
 end
 
-local TeleportCheck = false
+local TeleportCheck = true
 -- selene: allow(undefined_variable)
 local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 game.Players.LocalPlayer.OnTeleport:Connect(function(State)
@@ -18,7 +18,7 @@ end)
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.4.4"
+prisma.version = "2.5.5"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -48,10 +48,10 @@ function makeGUI()
 
 	GUI = Instance.new("ScreenGui")
 	local BG = Instance.new("Frame")
-	local Output = Instance.new("Frame")
+	local Output = Instance.new("ScrollingFrame")
 	local UIListLayout = Instance.new("UIListLayout")
 	local UIPadding = Instance.new("UIPadding")
-	Temp = Instance.new("TextLabel")
+	Temp = Instance.new("TextButton")
 	local UITextSizeConstraint = Instance.new("UITextSizeConstraint")
 	local InputGroup = Instance.new("Frame")
 	Input = Instance.new("TextBox")
@@ -66,6 +66,7 @@ function makeGUI()
 	GUI.Parent = game.CoreGui--game.Players.LocalPlayer:WaitForChild("PlayerGui")
 	GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	GUI.ResetOnSpawn = false
+	GUI.DisplayOrder = 99
 
 	BG.Name = "BG"
 	BG.Parent = GUI
@@ -87,6 +88,8 @@ function makeGUI()
 	Output.ClipsDescendants = true
 	Output.Position = UDim2.new(0, 0, 0.899999976, 0)
 	Output.Size = UDim2.new(1, 0, 1, 0)
+	Output.ScrollBarThickness = 0
+	--Output.ScrollingEnabled = false
 
 	UIListLayout.Parent = Output
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -102,18 +105,19 @@ function makeGUI()
 	Temp.BackgroundTransparency = 1.000
 	Temp.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	Temp.BorderSizePixel = 0
-	Temp.Size = UDim2.new(1, 0, 0, 19)
+	Temp.Size = UDim2.new(1, 0, 0, 25)
 	Temp.Font = Enum.Font.Code
 	Temp.Text = "[PRISMA] [9/10/2023 7:38 PM] - ws 120"
 	Temp.TextColor3 = Color3.fromRGB(255, 255, 255)
 	Temp.TextScaled = true
 	Temp.TextSize = 14.000
+	Temp.TextTransparency = 0.4
 	Temp.TextWrapped = true
 	Temp.TextXAlignment = Enum.TextXAlignment.Left
 	Temp.TextYAlignment = Enum.TextYAlignment.Bottom
 
 	UITextSizeConstraint.Parent = Temp
-	UITextSizeConstraint.MaxTextSize = 18
+	UITextSizeConstraint.MaxTextSize = 25
 
 	InputGroup.Name = "InputGroup"
 	InputGroup.Parent = BG
@@ -163,6 +167,118 @@ function makeGUI()
 
 	UIListLayout_2.Parent = InputGroup
 	UIListLayout_2.FillDirection = Enum.FillDirection.Horizontal
+
+	local function registerDynamicScrollingFrame(frame)
+		local layout = frame:FindFirstChildWhichIsA("UIListLayout")
+		local absoluteContentSize = layout.AbsoluteContentSize
+		frame.CanvasSize = UDim2.new(0, 0, 0, absoluteContentSize.Y)
+		layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			local absoluteContentSize = layout.AbsoluteContentSize
+			frame.CanvasSize = UDim2.new(0, 0, 0, absoluteContentSize.Y)
+			frame.CanvasPosition = Vector2.new(0, absoluteContentSize.Y)
+		end)
+	end
+
+	local final = nil
+
+	registerDynamicScrollingFrame(Output)
+
+	local layout = Output:FindFirstChildOfClass("UIListLayout")
+
+	local function createOutputObject(template,text)
+		
+		for i,v in pairs(Output:GetChildren()) do
+			if v:IsA("TextButton") then
+				v:Destroy()
+			end
+		end
+		
+		task.spawn(function()
+			for i,v in pairs(text) do
+				local object = template:Clone()
+				object.Parent = Output
+				object.Text = v
+				object.Visible = true
+				
+				local object2 = object:Clone()
+				object2.Parent = object
+				object2.Text = v
+				object2.AnchorPoint = Vector2.new(0.5,0.5)
+				object2.Position = UDim2.new(0.5,0,-10,0)
+	
+				object.TextTransparency = 1
+	
+				local info = TweenInfo.new(1,Enum.EasingStyle.Bounce)
+	
+				tweenservice:Create(object2,info,{
+					Position = UDim2.new(0.5,0,0.5,0)
+				}):Play()
+				task.wait()
+			end
+		end)
+	end
+
+	function autoComplete()
+		local txt = {}
+		for i,v in pairs(prisma.commands) do
+			if v.Alias == nil then
+				if Input.Text == "" or Input.Text == " " then
+					table.insert(txt,v.Command)
+				else
+					if string.find(v.Command, Input.Text) then
+					table.insert(txt,v.Command)
+					end
+				end
+				
+			else
+				if Input.Text == "" or Input.Text == " " then
+					table.insert(txt,v.Command.." / "..v.Alias)
+				else
+					if string.find(v.Command, Input.Text) or string.find(v.Alias, Input.Text) then
+						table.insert(txt,v.Command.." / "..v.Alias)
+					end
+				end	
+			end
+		end
+		createOutputObject(Temp,txt)
+	end
+
+	Input.Changed:Connect(function(property)
+		if property == "Text" then
+			autoComplete()
+		end
+	end)
+	Input.Focused:Connect(function()
+		autoComplete()
+	end)
+	uis.InputBegan:Connect(function(input,chatting)
+		if input.KeyCode == Enum.KeyCode.Tab and Input:IsFocused() then
+			Input.Text = Input.Text:gsub('\t','')
+
+			for i,v in pairs(prisma.commands) do
+				local cmd = v.Command
+				local alias = v.Alias
+				if v.Alias == nil then
+					alias = v.Command
+				end
+
+				local text = string.lower(Input.Text)
+				print(string.sub(cmd,1,text:len()))
+				if string.sub(cmd,1,text:len()) == text then
+					final = cmd
+				elseif string.sub(alias,1,text:len()) == text then
+					final = alias
+				end
+			end
+			if final == nil then return end
+			Input.Text = final
+			final = nil
+			wait()
+			Input.Text = Input.Text:gsub('\t','')
+			Input.CursorPosition = 1020
+		end
+	end)
+	
 end
 
 
@@ -195,9 +311,18 @@ function doGuiStuff()
 			Position = UDim2.new(0,0,-1,0)
 		}):Play()
 
+		for i,v in pairs(GUI.BG.Output:GetChildren()) do
+			if v:IsA("TextButton") then
+				v:Destroy()
+			end
+		end
 	end
 
-	gui.InputGroup.Input.FocusLost:Connect(function()
+	gui.InputGroup.Input.FocusLost:Connect(function(enterPressed)
+		if not enterPressed then
+			hide()
+			return
+		end
 		prisma:parseInput(gui.InputGroup.Input.Text)
 		hide()
 	end)
@@ -268,7 +393,6 @@ function prisma:parseInput(txt)
 			end
 
 		end
-		prisma:log(txt)
 	end
 end
 
@@ -306,33 +430,6 @@ uis.InputBegan:Connect(function(input, gameProcessedEvent)
 end)
 
 --- Functions ---
-
-function prisma:log(txt)
-	local text = temp:Clone()
-
-	local hours = os.date("*t")["hour"]
-	local mins = os.date("*t")["min"]
-
-	local day = os.date("*t")["day"]
-	local month = os.date("*t")["month"]
-	local year = os.date("*t")["year"]
-
-	text.Text = "["..os.date("%x").." "..os.date("%X").."] - "..txt
-	text.Parent = gui.Output
-
-	local old = text.AbsolutePosition.Y
-	text:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-		if not open then return end
-		if text.TextTransparency > 0.95 then
-			text:Destroy()
-		end
-
-		local new = text.AbsolutePosition.Y
-		local change = old - new
-		text.TextTransparency = text.TextTransparency + (change / 200)
-		old = new
-	end)
-end
 
 function prisma:chat(text)
 
