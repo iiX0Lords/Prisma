@@ -6,15 +6,7 @@ elseif _G.prisma.Loaded == false or _G.prisma.Loaded == nil then
 	if not game:IsLoaded() then game.Loaded:Wait() end
 end
 
-local TeleportCheck = true
--- selene: allow(undefined_variable)
-local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
-game.Players.LocalPlayer.OnTeleport:Connect(function(State)
-	if (not TeleportCheck) and queueteleport then
-		TeleportCheck = true
-		queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/CEmain.lua'))()")
-	end
-end)
+
 
 --- Static ---
 prisma = _G.prisma
@@ -2012,6 +2004,17 @@ prisma:addCMD("dodge","dod",function()
 end)
 
 prisma:addCMD("rejoin","rj",function()
+
+	local TeleportCheck = false
+	-- selene: allow(undefined_variable)
+	local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+	game.Players.LocalPlayer.OnTeleport:Connect(function(State)
+		if (not TeleportCheck) and queueteleport then
+			TeleportCheck = true
+			queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/CEmain.lua'))()")
+		end
+	end)
+
 	local Players = game.Players
 	local TeleportService = game:GetService("TeleportService")
 	if #Players:GetPlayers() <= 1 then
