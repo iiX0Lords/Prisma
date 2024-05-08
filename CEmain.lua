@@ -10,7 +10,7 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.5.5"
+prisma.version = "2.5.6"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -1390,13 +1390,11 @@ prisma:addCMD("detailesp","desp",nil,function(tracers)
 end)
 
 prisma:addCMD("launch",nil,nil,function(multiplier)
-	if multiplier == nil then
-		multiplier = 1
-	end
+	multiplier = tonumber(multiplier) or 1
 	local char = plr.Character
 	local vel = Instance.new("BodyVelocity",char.HumanoidRootPart)
 	char.HumanoidRootPart.Anchored = false
-	vel.MaxForce = Vector3.new(1,1,1) * math.huge
+	vel.MaxForce = Vector3.new(9999999999,99999999999,99999999999999)
 	vel.Velocity = Vector3.new(0,350 * multiplier,0)
 	debris:AddItem(vel,.15)
 end)
