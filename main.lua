@@ -1,5 +1,11 @@
 _G.prisma = {}
 
+_G.prisma.version = "2.5.6"
+
+if _G.prismaReturn then
+	return _G.prisma.version
+end
+
 if _G.prisma.Loaded == true then
 	return
 elseif _G.prisma.Loaded == false or _G.prisma.Loaded == nil then
@@ -10,7 +16,6 @@ end
 
 --- Static ---
 prisma = _G.prisma
-prisma.version = "2.5.6"
 prisma.commands = {}
 prisma.binds = {}
 --- Locals ---
@@ -713,6 +718,7 @@ function formatText(text)
 	return text
 end
 
+--#TODO change this
 function prisma:notify(text,lifetime,format)
 	if lifetime == nil then
 		lifetime = 3
