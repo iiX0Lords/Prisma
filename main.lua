@@ -1,12 +1,5 @@
 _G.prisma = {}
 
-local localPrismaversion = "2.5.6"
-
-if _G.prismaReturn then
-	return localPrismaversion
-end
-
-
 if _G.prisma.Loaded == true then
 	return
 elseif _G.prisma.Loaded == false or _G.prisma.Loaded == nil then
@@ -18,18 +11,8 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = localPrismaversion
+prisma.version = "2.5.6"
 prisma.binds = {}
-
-_G.prismaYielding = true
-if _G.prismaYielding then
-	repeat task.wait() until _G.prismaYielding ~= true
-
-	if _G.prismaYielding == "End" then
-		return
-	end
-end
-
 
 --- Locals ---
 local plr = game.Players.LocalPlayer
