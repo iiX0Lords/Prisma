@@ -716,115 +716,148 @@ end
 
 --#TODO change this
 function prisma:notify(text,lifetime,format)
-	if lifetime == nil then
-		lifetime = 3
-	end
-	parent = GUI
-	local function createNotifInstance()
-		--local new = script.Parent.notifTemp:Clone()
-		--new.Visible = true
-		--new.Size = UDim2.new(0,20,0,20)
-		local notifTemp = Instance.new("Frame")
+	if not GUI:FindFirstChild("holder") then
+		local holder = Instance.new("Frame")
+		holder.AnchorPoint = Vector2.new(0.5, 0)
+		holder.BackgroundColor3 = Color3.new(1, 1, 1)
+		holder.BackgroundTransparency = 1
+		holder.BorderColor3 = Color3.new(0, 0, 0)
+		holder.BorderSizePixel = 0
+		holder.Position = UDim2.new(0.5, 0, 0, 5)
+		holder.Size = UDim2.new(0.349999994 / 1.7, 0, 0.949999988 / 1.7, 0)
+		holder.Visible = true
+		holder.Name = "holder"
+		holder.Parent = GUI
+
+		local uilist_layout = Instance.new("UIListLayout")
+		uilist_layout.Padding = UDim.new(0, 15)
+		uilist_layout.SortOrder = Enum.SortOrder.LayoutOrder
+		uilist_layout.Parent = holder
+
+		local template = Instance.new("TextButton")
+		template.Font = Enum.Font.SourceSans
+		template.Text = ""
+		template.TextColor3 = Color3.new(0, 0, 0)
+		template.TextSize = 14
+		template.BackgroundColor3 = Color3.new(0.203922, 0.203922, 0.203922)
+		template.BorderColor3 = Color3.new(0, 0, 0)
+		template.BorderSizePixel = 0
+		template.Size = UDim2.new(1, 0, 0.129999995, 0)
+		template.Visible = false
+		template.Name = "template"
+		template.AnchorPoint = Vector2.new(0.5, 0)
+		template.Parent = holder
+
+		local uicorner = Instance.new("UICorner")
+		uicorner.CornerRadius = UDim.new(0, 6)
+		uicorner.Parent = template
+
+		local uistroke = Instance.new("UIStroke")
+		uistroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		uistroke.Color = Color3.new(1, 1, 1)
+		uistroke.Parent = template
+
 		local title = Instance.new("TextLabel")
-		local UICorner = Instance.new("UICorner")
-		local textfield = Instance.new("TextLabel")
-		local progress = Instance.new("Frame")
-
-		--Properties:
-
-		notifTemp.Name = "notifTemp"
-		notifTemp.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
-		notifTemp.Position = UDim2.new(1.5, 0, 0.850000024, 0)
-		notifTemp.Size = UDim2.new(0,20,0,20)
-		notifTemp.Visible = false
-		notifTemp.Visible = true
-
-		title.Name = "title"
-		title.Parent = notifTemp
-		title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		title.BackgroundTransparency = 1.000
-		title.Position = UDim2.new(0.0275862068, 0, 0.0666666701, 0)
-		title.Size = UDim2.new(0, 274, 0, 22)
-		title.Font = Enum.Font.Roboto
-		title.Text = "Prisma, duh"
-		title.TextColor3 = Color3.fromRGB(255, 255, 255)
+		title.Font = Enum.Font.Unknown
+		title.Text = "PRISMA"
+		title.TextColor3 = Color3.new(1, 1, 1)
 		title.TextScaled = true
-		title.TextSize = 14.000
+		title.TextSize = 14
+		title.TextStrokeColor3 = Color3.new(1, 1, 1)
 		title.TextWrapped = true
-		title.TextXAlignment = Enum.TextXAlignment.Left
+		title.AnchorPoint = Vector2.new(0.5, 0)
+		title.BackgroundColor3 = Color3.new(1, 1, 1)
+		title.BackgroundTransparency = 1
+		title.BorderColor3 = Color3.new(0, 0, 0)
+		title.BorderSizePixel = 0
+		title.Position = UDim2.new(0.5, 0, 0, 0)
+		title.Size = UDim2.new(1, 0, 0.400000006, 0)
+		title.Visible = true
+		title.Name = "title"
+		title.Parent = template
 
-		UICorner.CornerRadius = UDim.new(0, 3)
-		UICorner.Parent = notifTemp
+		local uipadding = Instance.new("UIPadding")
+		uipadding.PaddingBottom = UDim.new(0, 5)
+		uipadding.PaddingLeft = UDim.new(0, 5)
+		uipadding.PaddingRight = UDim.new(0, 5)
+		uipadding.PaddingTop = UDim.new(0, 5)
+		uipadding.Parent = template
 
-		textfield.Name = "textfield"
-		textfield.Parent = notifTemp
-		textfield.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		textfield.BackgroundTransparency = 1.000
-		textfield.Position = UDim2.new(0.0275862068, 0, 0.377777785, 0)
-		textfield.Size = UDim2.new(0, 274, 0, 40)
-		textfield.Font = Enum.Font.Unknown
-		textfield.RichText = true
-		textfield.Text = text
-		textfield.TextColor3 = Color3.fromRGB(255, 255, 255)
-		textfield.TextSize = 19.000
-		textfield.TextScaled = true
-		textfield.TextWrapped = true
-		textfield.TextXAlignment = Enum.TextXAlignment.Left
+		local line = Instance.new("Frame")
+		line.AnchorPoint = Vector2.new(0.5, 0.5)
+		line.BackgroundColor3 = Color3.new(1, 1, 1)
+		line.BorderColor3 = Color3.new(0, 0, 0)
+		line.BorderSizePixel = 0
+		line.Position = UDim2.new(0.5, 0, 0.400000006, 0)
+		line.Size = UDim2.new(1, 0, 0, 1)
+		line.Visible = true
+		line.Name = "line"
+		line.Parent = template
 
-		if format then
-			textfield.Text = formatText(text)
-		end
+		local contents = Instance.new("TextLabel")
+		contents.Font = Enum.Font.Unknown
+		contents.RichText = true
+		contents.Text = "Noclip disabled"
+		contents.TextColor3 = Color3.new(1, 1, 1)
+		contents.TextScaled = true
+		contents.TextSize = 14
+		contents.TextStrokeColor3 = Color3.new(1, 1, 1)
+		contents.TextWrapped = true
+		contents.AnchorPoint = Vector2.new(0.5, 1)
+		contents.BackgroundColor3 = Color3.new(1, 1, 1)
+		contents.BackgroundTransparency = 1
+		contents.BorderColor3 = Color3.new(0, 0, 0)
+		contents.BorderSizePixel = 0
+		contents.Position = UDim2.new(0.5, 0, 1, 0)
+		contents.Size = UDim2.new(1, 0, 0.5, 0)
+		contents.Visible = true
+		contents.Name = "contents"
+		contents.Parent = template
 
-		progress.Name = "progress"
-		progress.Parent = notifTemp
-		progress.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		progress.BorderSizePixel = 0
-		progress.Position = UDim2.new(0, 0, 0.944444418, 0)
-		progress.Size = UDim2.new(0, 290, 0, 5)
-		return notifTemp
+		local uitext_size_constraint = Instance.new("UITextSizeConstraint")
+		uitext_size_constraint.MaxTextSize = 25
+		uitext_size_constraint.Parent = contents
 	end
 
-	local NotificationsGui;
-	if parent:FindFirstChild("Popups") then
-		NotificationsGui = parent:FindFirstChild("Popups")
-	else
-		local Popups = Instance.new("Frame",parent)
-		local UIListLayout = Instance.new("UIListLayout")
-		Popups.Name = "Popups"
-		Popups.AnchorPoint = Vector2.new(1, 1)
-		Popups.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		Popups.BackgroundTransparency = 1.000
-		Popups.Position = UDim2.new(0.98989898, 0, 0.991729081, 0)
-		Popups.Size = UDim2.new(0, 320, 0, 567)
+	local holder = GUI.holder
 
-		UIListLayout.Parent = Popups
-		UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-		UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		UIListLayout.Padding = UDim.new(0, 10)
-		NotificationsGui = Popups
-	end
+	local notification = holder:FindFirstChild("template"):Clone()
 
-	local newNotify = createNotifInstance()
-	newNotify.Parent = NotificationsGui
-	table.insert(waiting,newNotify)
+	notification.contents.Text = text
+	notification.Visible = true
+	notification.Parent = holder
+	notification.Size = UDim2.new(1, 0, 0, 0)
 
-	newNotify:TweenSize(UDim2.new(0, 290,0, 90), Enum.EasingDirection.Out, Enum.EasingStyle.Back,0.15)
+	tweenservice:Create(notification, TweenInfo.new(0.1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		Size = UDim2.new(1, 0, 0.129999995, 0)
+	}):Play()
+	tweenservice:Create(notification:FindFirstChildOfClass("UIStroke"), TweenInfo.new(0.05, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		Thickness = 1
+	}):Play()
+	tweenservice:Create(notification.line, TweenInfo.new(0.05, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		BackgroundTransparency = 0
+	}):Play()
 
+	tweenservice:Create(notification.line, TweenInfo.new(lifetime, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
+		Size = UDim2.new(0, 0, 0, 1)
+	}):Play()
 
-	task.spawn(function()
-		lifetime = lifetime*100
-		for i = 1,lifetime do
-			game:GetService("TweenService"):Create(newNotify.progress,TweenInfo.new(.15),{
-				Size = UDim2.new(i/lifetime,0,0,5)
-			}):Play()
-			task.wait(0.01)
-		end
-		newNotify.title.Visible = false
-		newNotify.textfield.Visible = false
-		newNotify:TweenSize(UDim2.new(0,0,0,0), Enum.EasingDirection.Out, Enum.EasingStyle.Sine,0.15)
-		task.wait(.15)
-		newNotify:Destroy()
+	delay(lifetime, function()
+		notification.title.Visible = false
+		notification.contents.Visible = false
+		tweenservice:Create(notification:FindFirstChildOfClass("UIStroke"), TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Thickness = 0
+		}):Play()
+		tweenservice:Create(notification.line, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			BackgroundTransparency = 1
+		}):Play()
+		local tween = tweenservice:Create(notification, TweenInfo.new(0.25, Enum.EasingStyle.Exponential), {
+			Size = UDim2.new(1, 0, 0, 0)
+		})
+		tween:Play()
+
+		tween.Completed:Wait()
+		notification:Destroy()
 	end)
 end
 
