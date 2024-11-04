@@ -12,8 +12,10 @@ end
 
 
 if _G.prisma.version ~= getVersion() then
+    print("[PRISMA] - Loading Local Version")
     _G.prismaYielding = false
     else
+    print("[PRISMA] - Loading Web Version")
     _G.prismaReturn = false
     _G.prismaYielding = "End"
     loadstring(game:HttpGet("https://raw.githubusercontent.com/iiX0Lords/Prisma/refs/heads/main/main.lua"))()
