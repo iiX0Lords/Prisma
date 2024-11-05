@@ -11,7 +11,8 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "2.5.7"
+prisma.version = "<!#FV> 2.5.8 </#FV>"
+prisma.version = string.sub(prisma.version,13,17)
 prisma.binds = {}
 
 --- Locals ---
@@ -714,8 +715,9 @@ function formatText(text)
 	return text
 end
 
---#TODO change this
+
 function prisma:notify(text,lifetime,format)
+	lifetime = lifetime or 1
 	if not GUI:FindFirstChild("holder") then
 		local holder = Instance.new("Frame")
 		holder.AnchorPoint = Vector2.new(0.5, 0)
@@ -1646,9 +1648,9 @@ prisma:addCMD("waypoint","wp",function(name)
 			Name = name,
 			CF = getRoot().CFrame
 		})
-		prisma:notify("Set waypoint "..name.." at "..tostring(math.round(getRoot().Position.X)).." "..
-			tostring(math.round(getRoot().Position.Y)).." "..
-			tostring(math.round(getRoot().Position.Z)))
+		local position = getRoot().CFrame
+		local x,y,z = math.round(position.X),math.round(position.Y),math.round(position.Z)
+		prisma:notify(`Set waypoint {name} at ({x}, {y}, {z})`, 2.5)
 	else
 		local act = nil
 		for i,v in pairs(waypoints) do
@@ -1658,6 +1660,22 @@ prisma:addCMD("waypoint","wp",function(name)
 		end
 		getRoot().CFrame = act.CF
 		prisma:notify("Teleported to "..act.Name)
+	end
+end)
+
+prisma:addCMD("deletewaypoint","delwp",function(name)
+	local found = false
+	for i,v in pairs(waypoints) do
+		if v.Name == name then
+			found = true
+
+			table.remove(waypoints, i)
+			prisma:notify(`Deleted Waypoint, {name}`, 1.5)
+
+		end
+	end
+	if not found then
+		prisma:notify(`Invalid Waypoint, {name}`, 1.5)
 	end
 end)
 
@@ -2044,7 +2062,7 @@ prisma:addCMD("rejoin","rj",function()
 	game.Players.LocalPlayer.OnTeleport:Connect(function(State)
 		if (not TeleportCheck) and queueteleport then
 			TeleportCheck = true
-			queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/CEmain.lua'))()")
+			queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/main.lua'))()")
 		end
 	end)
 
