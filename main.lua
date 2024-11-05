@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.8 </#FV>"
+prisma.version = "<!#FV> 2.5.9 </#FV>"
 prisma.version = string.sub(prisma.version,13,17)
 prisma.binds = {}
 
@@ -2118,6 +2118,28 @@ prisma:addCMD("replaceshiftlockbind","replaceshift",function(arg)
 		obj.Name = "BoundKeys"
 		obj.Value = keys
 		obj.Parent = mouseLockController
+	end
+end)
+
+prisma:addCMD("locate", "lc", function(player)
+	target = prisma:findplr(player)
+	if target then
+		local highlight = Instance.new("Highlight",target.Character)
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		highlight.FillTransparency = 1
+		highlight.OutlineTransparency = 0
+		highlight.OutlineColor = Color3.fromRGB(255,255,255)
+		highlight.Name = "Locate"
+	else
+		prisma:notify("Invalid Player")
+	end
+end)
+
+prisma:addCMD("unlocate", "unlc", function(player)
+	target = prisma:findplr(player)
+	if target then
+		local highlight = target.Character:FindFirstChild("Locate")
+		if highlight then highlight:Destroy() end
 	end
 end)
 
