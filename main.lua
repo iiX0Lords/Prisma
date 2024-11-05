@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "2.5.6"
+prisma.version = "2.5.7"
 prisma.binds = {}
 
 --- Locals ---
