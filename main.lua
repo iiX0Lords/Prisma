@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.13 </#FV>"
+prisma.version = "<!#FV> 2.5.14 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -986,6 +986,7 @@ end)
 
 prisma:addBind(Enum.KeyCode.F8,function()
 	prisma:executeCommand("breakvel")
+	prisma:notify("Broken Velocity", 0.5)
 end)
 
 prisma:addBind(Enum.KeyCode.F10,function()
