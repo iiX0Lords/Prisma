@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.12 </#FV>"
+prisma.version = "<!#FV> 2.5.13 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -2109,7 +2109,6 @@ prisma:addCMD("rejoin","rj",function()
 	game.Players.LocalPlayer.OnTeleport:Connect(function(State)
 		if (not TeleportCheck) and queueteleport then
 			TeleportCheck = true
-			queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/iiX0Lords/Prisma/main/main.lua'))()")
 		end
 	end)
 
