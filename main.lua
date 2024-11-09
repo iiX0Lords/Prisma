@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.9 </#FV>"
+prisma.version = "<!#FV> 2.5.10 </#FV>"
 prisma.version = string.sub(prisma.version,13,17)
 prisma.binds = {}
 
@@ -26,6 +26,7 @@ local uis = game:GetService("UserInputService")
 local tweenservice = game:GetService("TweenService")
 local logservice = game:GetService("LogService")
 local debris = game:GetService("Debris")
+local httpService = game:GetService("HttpService")
 
 
 --- Dynamic ---
@@ -1636,6 +1637,50 @@ end)
 
 local waypoints = {}
 
+local globalWaypoints = {}
+-- selene: allow(undefined_variable)
+local success, error = pcall(function()
+	readfile("prismaWaypoints.config")
+end)
+if success then
+	-- selene: allow(undefined_variable)
+	globalWaypoints = readfile("prismaWaypoints.config")
+end
+
+if typeof(globalWaypoints) == "string" then
+	globalWaypoints = httpService:JSONDecode(globalWaypoints)
+end
+
+for _,gameValue in pairs(globalWaypoints) do
+	if gameValue.PlaceId == game.PlaceId then
+		print("Found Existing Waypoints")
+		waypoints = gameValue.Waypoints
+	end
+end
+
+for i,v in pairs(waypoints) do
+	if typeof(v.CF) == "string" then
+		v.CF = CFrame.new(Vector3.new(v.CF:match("(.+), (.+), (.+)")))
+	end
+end
+
+function updateWaypointFile()
+	local newWp = {}
+	for i,v in pairs(waypoints) do
+		table.insert(newWp, {
+			Name = v.Name,
+			CF = tostring(v.CF.Position)
+		})
+	end
+
+	table.insert(globalWaypoints, {
+		PlaceId = game.PlaceId,
+		Waypoints = newWp,
+	})
+	-- selene: allow(undefined_variable)
+	writefile("prismaWaypoints.config", httpService:JSONEncode(globalWaypoints))
+end
+
 prisma:addCMD("waypoint","wp",function(name)
 	local found = false
 	for i,v in pairs(waypoints) do
@@ -1650,6 +1695,7 @@ prisma:addCMD("waypoint","wp",function(name)
 		})
 		local position = getRoot().CFrame
 		local x,y,z = math.round(position.X),math.round(position.Y),math.round(position.Z)
+		updateWaypointFile()
 		prisma:notify(`Set waypoint {name} at ({x}, {y}, {z})`, 2.5)
 	else
 		local act = nil
@@ -1670,6 +1716,7 @@ prisma:addCMD("deletewaypoint","delwp",function(name)
 			found = true
 
 			table.remove(waypoints, i)
+			updateWaypointFile()
 			prisma:notify(`Deleted Waypoint, {name}`, 1.5)
 
 		end
