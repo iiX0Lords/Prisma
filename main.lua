@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.11 </#FV>"
+prisma.version = "<!#FV> 2.5.12 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -2188,6 +2188,10 @@ prisma:addCMD("unlocate", "unlc", function(player)
 		local highlight = target.Character:FindFirstChild("Locate")
 		if highlight then highlight:Destroy() end
 	end
+end)
+
+prisma:addCMD("gotoposition", "gotopos", function(pos : string)
+	getRoot().CFrame = CFrame.new(Vector3.new(pos:match("(.+), (.+), (.+)")))
 end)
 
 prisma:chat("Loaded Prisma")
