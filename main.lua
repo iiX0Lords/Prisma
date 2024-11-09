@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.14 </#FV>"
+prisma.version = "<!#FV> 2.5.15 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -1777,57 +1777,7 @@ prisma:addCMD("precisionflight","pfly",function(arg)
 	movePart.Transparency = 1
 	movePart.CanCollide = false
 
-
-	local walkKeyBinds = {
-		Forward = { Key = Enum.KeyCode.W, Direction = Enum.NormalId.Front },
-		Backward = { Key = Enum.KeyCode.S, Direction = Enum.NormalId.Back },
-		Left = { Key = Enum.KeyCode.A, Direction = Enum.NormalId.Left },
-		Right = { Key = Enum.KeyCode.D, Direction = Enum.NormalId.Right }
-	}
-
-	local targetMoveVelocity = Vector3.new()
-	local moveVelocity = Vector3.new()
-	local MOVE_ACCELERATION = 100
 	pfSpeed = 1
-
-	local DFMOVE_ACCELERATION = MOVE_ACCELERATION
-
-	function getWalkDirectionCameraSpace()
-		workspace.CurrentCamera.CameraSubject = plr.Character.Humanoid
-		local walkDir = Vector3.new()
-
-		for keyBindName, keyBind in pairs(walkKeyBinds) do
-			if uis:IsKeyDown(keyBind.Key) then
-				walkDir = walkDir + Vector3.FromNormalId( keyBind.Direction )
-			end
-		end
-
-		if walkDir.Magnitude > 0 then --(0, 0, 0).Unit = NaN, do not want
-			walkDir = walkDir.Unit --Normalize, because we (probably) changed an Axis so it's no longer a unit vector
-		end
-
-		return walkDir
-	end
-
-	function lerp(a, b, c)
-		return a + ((b - a) * c)
-	end
-
-	function getWalkDirectionWorldSpace(dt)
-		local walkDir = workspace.CurrentCamera.CFrame:VectorToWorldSpace( getWalkDirectionCameraSpace() )
-		walkDir = walkDir * Vector3.new(1, 0, 1) --Set Y axis to 0
-
-		if walkDir.Magnitude > 0 then --(0, 0, 0).Unit = NaN, do not want
-			walkDir = walkDir.Unit --Normalize, because we (probably) changed an Axis so it's no longer a unit vector
-		end
-
-		local moveDir = walkDir
-
-
-
-		local targetMoveVelocity = moveDir
-		return lerp( moveVelocity, targetMoveVelocity, math.clamp(dt * MOVE_ACCELERATION, 0, 1)*pfSpeed )
-	end
 
 	function asignKeycodeToBool(keycode,bool)
 		uis.InputBegan:Connect(function(input,chatting)
@@ -1861,20 +1811,13 @@ prisma:addCMD("precisionflight","pfly",function(arg)
 	end)
 
 	moveLoop = runservice.RenderStepped:Connect(function(dt)
-
-		-- if shift then
-		-- 	pfSpeed = 3
-		-- else
-		-- 	pfSpeed = 1
-		-- end
-
 		if arg == nil then
 			plr.Character.Humanoid.PlatformStand = true
 		end
 
 		up,down,shift = Getup(),Getdown()
 
-		movePart.CFrame = movePart.CFrame * CFrame.new(getWalkDirectionWorldSpace(dt))
+		movePart.CFrame = movePart.CFrame + plr.Character.Humanoid.MoveDirection
 
 		local moveVel = 0.8
 		if up then
@@ -1883,11 +1826,8 @@ prisma:addCMD("precisionflight","pfly",function(arg)
 			movePart.CFrame = movePart.CFrame * CFrame.new(0,-moveVel,0)
 		end
 
-
-
-
+		--#TODO make player look towards movement direction
 		plr.Character.HumanoidRootPart.CFrame = movePart.CFrame	
-		--plr.Character.HumanoidRootPart.CFrame = CFrame.lookAt(plr.Character.HumanoidRootPart.Position,plr.Character.HumanoidRootPart.Position+Vector3.new(getWalkDirectionWorldSpace(dt).X,0,getWalkDirectionWorldSpace(dt).Z))
 		plr.Character.HumanoidRootPart.Velocity = Vector3.new(0,0,0)
 		workspace.CurrentCamera.CameraSubject = movePart
 	end)
