@@ -11,8 +11,8 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.10 </#FV>"
-prisma.version = string.sub(prisma.version,13,17)
+prisma.version = "<!#FV> 2.5.11 </#FV>"
+prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
 --- Locals ---
