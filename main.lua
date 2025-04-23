@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.5.15 </#FV>"
+prisma.version = "<!#FV> 2.6.15 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -35,300 +35,189 @@ local QEfly = true
 local flyspeed = 1
 local vehicleflyspeed = 1
 
-local GUI
-local Temp
-local Input
-function makeGUI()
-	-- Instances:
 
-	GUI = Instance.new("ScreenGui")
-	local BG = Instance.new("Frame")
-	local Output = Instance.new("ScrollingFrame")
-	local UIListLayout = Instance.new("UIListLayout")
-	local UIPadding = Instance.new("UIPadding")
-	Temp = Instance.new("TextButton")
-	local UITextSizeConstraint = Instance.new("UITextSizeConstraint")
-	local InputGroup = Instance.new("Frame")
-	Input = Instance.new("TextBox")
-	local UIPadding_2 = Instance.new("UIPadding")
-	local Arrow = Instance.new("TextLabel")
-	local UIPadding_3 = Instance.new("UIPadding")
-	local UIListLayout_2 = Instance.new("UIListLayout")
+local GUI = nil
+function initUi()
 
-	--Properties:
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Name = "prisma"
+gui.Parent = game.CoreGui
+GUI = gui
 
-	GUI.Name = "Prisma"
-	GUI.Parent = game.CoreGui--game.Players.LocalPlayer:WaitForChild("PlayerGui")
-	GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	GUI.ResetOnSpawn = false
-	GUI.DisplayOrder = 99
+local input = Instance.new("TextBox")
+input.Font = Enum.Font.TitilliumWeb
+input.Text = "Prisma | v3.2.1"
+input.TextColor3 = Color3.new(0.972549, 0.972549, 0.972549)
+input.TextScaled = true
+input.TextSize = 27
+input.TextWrapped = true
+input.AnchorPoint = Vector2.new(0, 1)
+input.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
+input.BackgroundTransparency = 0.699999988079071
+input.BorderColor3 = Color3.new(0.972549, 0.972549, 0.972549)
+input.BorderSizePixel = 0
+input.Position = UDim2.new(0, 0, 1, 0)
+input.Size = UDim2.new(0, 200, 0, 25)
+input.Visible = true
+input.ZIndex = 5
+input.Name = "CMDbar"
+input.Parent = gui
 
-	BG.Name = "BG"
-	BG.Parent = GUI
-	BG.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-	BG.BackgroundTransparency = 0.300
-	BG.BorderColor3 = Color3.fromRGB(255, 255, 255)
-	BG.BorderSizePixel = 0
-	BG.ClipsDescendants = true
-	BG.Position = UDim2.new(0, 0, -1, 0)
-	BG.Size = UDim2.new(1, 0, 0.349999994, 0)
+local uitext_size_constraint = Instance.new("UITextSizeConstraint")
+uitext_size_constraint.MaxTextSize = 20
+uitext_size_constraint.Parent = input
 
-	Output.Name = "Output"
-	Output.Parent = BG
-	Output.AnchorPoint = Vector2.new(0, 1)
-	Output.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	Output.BackgroundTransparency = 1.000
-	Output.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	Output.BorderSizePixel = 0
-	Output.ClipsDescendants = true
-	Output.Position = UDim2.new(0, 0, 0.899999976, 0)
-	Output.Size = UDim2.new(1, 0, 1, 0)
-	Output.ScrollBarThickness = 0
-	--Output.ScrollingEnabled = false
+local contents = Instance.new("CanvasGroup")
+contents.GroupTransparency = 1
+contents.AnchorPoint = Vector2.new(0.5, 1)
+contents.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
+contents.BackgroundTransparency = 0.699999988079071
+contents.BorderColor3 = Color3.new(0, 0, 0)
+contents.BorderSizePixel = 0
+contents.Position = UDim2.new(0.5, 0, 9, 0)
+contents.Size = UDim2.new(1, 0, 0, 200)
+contents.Visible = true
+contents.Name = "contents"
+contents.Parent = input
 
-	UIListLayout.Parent = Output
-	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+local template = Instance.new("TextLabel")
+template.Font = Enum.Font.TitilliumWeb
+template.Text = "Fly"
+template.TextColor3 = Color3.new(1, 1, 1)
+template.TextSize = 23
+template.TextXAlignment = Enum.TextXAlignment.Left
+template.Visible = false
+template.BackgroundColor3 = Color3.new(1, 1, 1)
+template.BackgroundTransparency = 1
+template.BorderColor3 = Color3.new(0, 0, 0)
+template.BorderSizePixel = 0
+template.Size = UDim2.new(1, 0, 0.150000006, 0)
+template.Visible = true
+template.Parent = contents
 
-	UIPadding.Parent = Output
-	UIPadding.PaddingBottom = UDim.new(0, 2)
-	UIPadding.PaddingLeft = UDim.new(0, 8)
+local uipadding = Instance.new("UIPadding")
+uipadding.PaddingLeft = UDim.new(0, 5)
+uipadding.PaddingTop = UDim.new(0, 5)
+uipadding.Parent = contents
 
-	Temp.Name = "Temp"
-	Temp.Parent = Output
-	Temp.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	Temp.BackgroundTransparency = 1.000
-	Temp.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	Temp.BorderSizePixel = 0
-	Temp.Size = UDim2.new(1, 0, 0, 25)
-	Temp.Font = Enum.Font.Code
-	Temp.Text = "[PRISMA] [9/10/2023 7:38 PM] - ws 120"
-	Temp.TextColor3 = Color3.fromRGB(255, 255, 255)
-	Temp.TextScaled = true
-	Temp.TextSize = 14.000
-	Temp.TextTransparency = 0.4
-	Temp.TextWrapped = true
-	Temp.TextXAlignment = Enum.TextXAlignment.Left
-	Temp.TextYAlignment = Enum.TextYAlignment.Bottom
+local uicorner = Instance.new("UICorner")
+uicorner.CornerRadius = UDim.new(0, 4)
+uicorner.Parent = contents
 
-	UITextSizeConstraint.Parent = Temp
-	UITextSizeConstraint.MaxTextSize = 25
+local thin = Instance.new("Frame")
+thin.BackgroundColor3 = Color3.new(0.338407, 1, 0)
+thin.BackgroundTransparency = 0.25
+thin.BorderColor3 = Color3.new(0, 0, 0)
+thin.BorderSizePixel = 0
+thin.Size = UDim2.new(1, 0, 0.0299999993, 0)
+thin.Visible = true
+thin.Name = "thin"
+thin.Parent = input
 
-	InputGroup.Name = "InputGroup"
-	InputGroup.Parent = BG
-	InputGroup.AnchorPoint = Vector2.new(0, 1)
-	InputGroup.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	InputGroup.BackgroundTransparency = 1.000
-	InputGroup.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	InputGroup.BorderSizePixel = 0
-	InputGroup.ClipsDescendants = true
-	InputGroup.Position = UDim2.new(0, 0, 1, 0)
-	InputGroup.Size = UDim2.new(1, 0, 0.100000001, 0)
+local uigrid = Instance.new("UIGridLayout")
+uigrid.Parent = contents
+uigrid.CellPadding = UDim2.new(0,0,0,0)
+uigrid.CellSize = UDim2.new(1, 0, 0.13, 0)
+uigrid.FillDirection = Enum.FillDirection.Vertical
 
-	Input.Name = "Input"
-	Input.Parent = InputGroup
-	Input.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	Input.BackgroundTransparency = 1.000
-	Input.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	Input.BorderSizePixel = 0
-	Input.Size = UDim2.new(1, 0, 1, 0)
-	Input.Font = Enum.Font.Unknown
-	Input.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
-	Input.Text = ""
-	Input.TextColor3 = Color3.fromRGB(255, 255, 255)
-	Input.TextScaled = true
-	Input.TextSize = 14.000
-	Input.TextWrapped = true
-	Input.TextXAlignment = Enum.TextXAlignment.Left
 
-	UIPadding_2.Parent = InputGroup
-	UIPadding_2.PaddingBottom = UDim.new(0, 5)
-	UIPadding_2.PaddingLeft = UDim.new(0, 3)
 
-	Arrow.Name = "Arrow"
-	Arrow.Parent = InputGroup
-	Arrow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	Arrow.BackgroundTransparency = 1.000
-	Arrow.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	Arrow.BorderSizePixel = 0
-	Arrow.Size = UDim2.new(0.0120000001, 0, 1, 2)
-	Arrow.Font = Enum.Font.Unknown
-	Arrow.Text = ">"
-	Arrow.TextColor3 = Color3.fromRGB(255, 255, 255)
-	Arrow.TextScaled = true
-	Arrow.TextWrapped = true
+local function autoComplete()
 
-	UIPadding_3.Parent = Arrow
-
-	UIListLayout_2.Parent = InputGroup
-	UIListLayout_2.FillDirection = Enum.FillDirection.Horizontal
-
-	local function registerDynamicScrollingFrame(frame)
-		local layout = frame:FindFirstChildWhichIsA("UIListLayout")
-		local absoluteContentSize = layout.AbsoluteContentSize
-		frame.CanvasSize = UDim2.new(0, 0, 0, absoluteContentSize.Y)
-		layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-			local absoluteContentSize = layout.AbsoluteContentSize
-			frame.CanvasSize = UDim2.new(0, 0, 0, absoluteContentSize.Y)
-			frame.CanvasPosition = Vector2.new(0, absoluteContentSize.Y)
-		end)
+	for i,v in pairs(contents:GetChildren()) do
+		if v:IsA("TextLabel") then
+			v:Destroy()
+		end
 	end
 
-	local final = nil
+	local commands = {}
 
-	registerDynamicScrollingFrame(Output)
-
-	local layout = Output:FindFirstChildOfClass("UIListLayout")
-
-	local function createOutputObject(template,text)
-		
-		for i,v in pairs(Output:GetChildren()) do
-			if v:IsA("TextButton") then
-				v:Destroy()
+	for i,v in pairs(prisma.commands) do
+		if v.Alias ~= nil then
+			if string.sub(v.Command, 1, string.len(input.Text)) == input.Text or string.sub(v.Alias, 1, string.len(input.Text)) == input.Text then
+				table.insert(commands, v)
+			end
+		else
+			if string.sub(v.Command, 1, string.len(input.Text)) == input.Text then
+				table.insert(commands, v)
 			end
 		end
-		
-		task.spawn(function()
-			for i,v in pairs(text) do
-				local object = template:Clone()
-				object.Parent = Output
-				object.Text = v
-				object.Visible = true
-				
-				local object2 = object:Clone()
-				object2.Parent = object
-				object2.Text = v
-				object2.AnchorPoint = Vector2.new(0.5,0.5)
-				object2.Position = UDim2.new(0.5,0,-10,0)
-	
-				object.TextTransparency = 1
-	
-				local info = TweenInfo.new(1,Enum.EasingStyle.Bounce)
-	
-				tweenservice:Create(object2,info,{
-					Position = UDim2.new(0.5,0,0.5,0)
-				}):Play()
-				task.wait()
-			end
-		end)
+	end
+	for i,v in pairs(prisma.commands) do
+		if not table.find(commands, v) then
+			table.insert(commands, v)
+		end
 	end
 
-	function autoComplete()
-		local txt = {}
-		for i,v in pairs(prisma.commands) do
-			if v.Alias == nil then
-				if Input.Text == "" or Input.Text == " " then
-					table.insert(txt,v.Command)
-				else
-					if string.find(v.Command, Input.Text) then
-					table.insert(txt,v.Command)
-					end
-				end
-				
-			else
-				if Input.Text == "" or Input.Text == " " then
-					table.insert(txt,v.Command.." / "..v.Alias)
-				else
-					if string.find(v.Command, Input.Text) or string.find(v.Alias, Input.Text) then
-						table.insert(txt,v.Command.." / "..v.Alias)
-					end
-				end	
-			end
+	for i,v in ipairs(commands) do
+		local clone = template:Clone()
+		if v.Alias == nil then
+			clone.Text = string.upper(string.sub(v.Command, 1, 1))..string.sub(v.Command, 2, string.len(v.Command))
+		else
+			clone.Text = `{string.upper(string.sub(v.Command, 1, 1))..string.sub(v.Command, 2, string.len(v.Command))} | {string.upper(string.sub(v.Alias, 1, 1))..string.sub(v.Alias, 2, string.len(v.Alias))}`
 		end
-		createOutputObject(Temp,txt)
+		clone.Parent = contents
+		clone.Visible = true
 	end
+end
 
-	Input.Changed:Connect(function(property)
-		if property == "Text" then
-			autoComplete()
-		end
-	end)
-	Input.Focused:Connect(function()
+uis.InputBegan:Connect(function(key, chatting)
+	if not chatting and key.KeyCode == Enum.KeyCode.RightAlt then
+		input:CaptureFocus()
+	end
+end)
+local cmdTween = true
+local versionTag = `Prisma | v{prisma.version}`
+
+input.Focused:Connect(function()
+	autoComplete()
+	cmdTween = false
+	tweenservice:Create(contents, TweenInfo.new(.4,Enum.EasingStyle.Exponential), {
+		Position = UDim2.new(0.5, 0, 0, 0),
+		GroupTransparency = 0
+	}):Play()
+end)
+input.Changed:Connect(function(property)
+	if property == "Text" then
 		autoComplete()
-	end)
-	uis.InputBegan:Connect(function(input,chatting)
-		if input.KeyCode == Enum.KeyCode.Tab and Input:IsFocused() then
-			Input.Text = Input.Text:gsub('\t','')
+	end
+end)
+input.FocusLost:Connect(function(enterPressed)
 
-			for i,v in pairs(prisma.commands) do
-				local cmd = v.Command
-				local alias = v.Alias
-				if v.Alias == nil then
-					alias = v.Command
-				end
+	if enterPressed then
+		prisma:parseInput(input.Text)
+	end
 
-				local text = string.lower(Input.Text)
-				print(string.sub(cmd,1,text:len()))
-				if string.sub(cmd,1,text:len()) == text then
-					final = cmd
-				elseif string.sub(alias,1,text:len()) == text then
-					final = alias
-				end
-			end
-			if final == nil then return end
-			Input.Text = final
-			final = nil
-			wait()
-			Input.Text = Input.Text:gsub('\t','')
-			Input.CursorPosition = 1020
-		end
-	end)
+	tweenservice:Create(contents, TweenInfo.new(1,Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+		Position = UDim2.new(0.5, 0, 9, 0),
+		GroupTransparency = 1
+	}):Play()
 	
-end
-
-
-makeGUI()
-
-local gui = GUI.BG
-local temp = Temp
-temp.Parent = game.ReplicatedStorage
-local open = false
-
-function doGuiStuff()
-	local function show()
-
-		local info = TweenInfo.new(.2)
-
-		tweenservice:Create(gui,info,{
-			Position = UDim2.new(0,0,-0.1,0)
-		}):Play()
-		gui.InputGroup.Input:CaptureFocus()
-		gui.InputGroup.Input.CursorPosition = 1
-		delay(info.Time,function()
-			open = true
-		end)
+	local middle = #versionTag / 2
+	cmdTween = true
+	for i = 0,middle do
+		
+		if cmdTween == false then
+			cmdTween = true
+			input.Text = ""
+			break
+		end
+		
+		input.Text = string.sub(versionTag, middle - i,middle + i)
+		wait(.08)
 	end
+end)
 
-	local function hide()
-		local info = TweenInfo.new(.2)
-		open = false
-		tweenservice:Create(gui,info,{
-			Position = UDim2.new(0,0,-1,0)
-		}):Play()
+runservice.RenderStepped:Connect(function()
+	thin.BackgroundColor3 = Color3.fromHSV(tick() % 20/20, 1, 1)
+end)
 
-		for i,v in pairs(GUI.BG.Output:GetChildren()) do
-			if v:IsA("TextButton") then
-				v:Destroy()
-			end
-		end
-	end
-
-	gui.InputGroup.Input.FocusLost:Connect(function(enterPressed)
-		if not enterPressed then
-			hide()
-			return
-		end
-		prisma:parseInput(gui.InputGroup.Input.Text)
-		hide()
-	end)
-
-	uis.InputBegan:Connect(function(input,chatting)
-		if input.KeyCode == Enum.KeyCode.RightAlt and not chatting then
-			show()
-		end
-	end)
 end
-doGuiStuff()
+initUi()
+
 
 
 --- Command handling stuff ---
