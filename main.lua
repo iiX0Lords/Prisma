@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.7.17 </#FV>"
+prisma.version = "<!#FV> 2.7.18 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -1998,6 +1998,6 @@ prisma:addCMD("gotoposition", "gotopos", function(pos : string)
 	getRoot().CFrame = CFrame.new(Vector3.new(pos:match("(.+), (.+), (.+)")))
 end)
 
-prisma:chat("Loaded Prisma")
-task.wait(.05)
-prisma:chat("Version: "..prisma.version)
+-- prisma:chat("Loaded Prisma")
+-- task.wait(.05)
+-- prisma:chat("Version: "..prisma.version)
