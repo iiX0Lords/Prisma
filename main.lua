@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.7.15 </#FV>"
+prisma.version = "<!#FV> 2.7.16 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -712,7 +712,7 @@ function prisma:notify(text,lifetime,format)
 	notification.Parent = holder
 	notification.Size = UDim2.new(0, 200, 0, 0)
 
-	tweenservice:Create(notification, TweenInfo.new(0.1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	tweenservice:Create(notification, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		Size = UDim2.new(0, 200, 1, 0),
 		GroupTransparency = 0
 	}):Play()
@@ -722,7 +722,7 @@ function prisma:notify(text,lifetime,format)
 			Size = UDim2.new(0, 200, 0, 0),
 			GroupTransparency = 1
 		}):Play()
-		task.wait(0.3)
+		task.wait(0.6)
 		notification:Destroy()
 	end)
 end
