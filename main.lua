@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.6.15 </#FV>"
+prisma.version = "<!#FV> 2.7.15 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -27,6 +27,7 @@ local tweenservice = game:GetService("TweenService")
 local logservice = game:GetService("LogService")
 local debris = game:GetService("Debris")
 local httpService = game:GetService("HttpService")
+local collectionService = game:GetService("CollectionService")
 
 
 --- Dynamic ---
@@ -116,6 +117,7 @@ thin.Size = UDim2.new(1, 0, 0.0299999993, 0)
 thin.Visible = true
 thin.Name = "thin"
 thin.Parent = input
+thin:AddTag("rgb")
 
 local uigrid = Instance.new("UIGridLayout")
 uigrid.Parent = contents
@@ -212,7 +214,9 @@ input.FocusLost:Connect(function(enterPressed)
 end)
 
 runservice.RenderStepped:Connect(function()
-	thin.BackgroundColor3 = Color3.fromHSV(tick() % 20/20, 1, 1)
+	for i,v in pairs(collectionService:GetTagged("rgb")) do
+		v.BackgroundColor3 = Color3.fromHSV(tick() % 20/20, 1, 1)
+	end
 end)
 
 end
@@ -608,147 +612,117 @@ end
 
 function prisma:notify(text,lifetime,format)
 	lifetime = lifetime or 1
-	if not GUI:FindFirstChild("holder") then
+	if not GUI:FindFirstChildOfClass("TextBox"):FindFirstChild("holder") then
+
 		local holder = Instance.new("Frame")
-		holder.AnchorPoint = Vector2.new(0.5, 0)
-		holder.BackgroundColor3 = Color3.new(1, 1, 1)
+		holder.AnchorPoint = Vector2.new(0, 1)
+		holder.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
 		holder.BackgroundTransparency = 1
 		holder.BorderColor3 = Color3.new(0, 0, 0)
 		holder.BorderSizePixel = 0
-		holder.Position = UDim2.new(0.5, 0, 0, 5)
-		holder.Size = UDim2.new(0.349999994 / 1.7, 0, 0.949999988 / 1.7, 0)
+		holder.Position = UDim2.new(1, 0, 1, 0)
+		holder.Size = UDim2.new(0, 500, 0, 125)
 		holder.Visible = true
 		holder.Name = "holder"
-		holder.Parent = GUI
+		holder.Parent = GUI:FindFirstChildOfClass("TextBox")
 
-		local uilist_layout = Instance.new("UIListLayout")
-		uilist_layout.Padding = UDim.new(0, 15)
-		uilist_layout.SortOrder = Enum.SortOrder.LayoutOrder
-		uilist_layout.Parent = holder
-
-		local template = Instance.new("TextButton")
-		template.Font = Enum.Font.SourceSans
-		template.Text = ""
-		template.TextColor3 = Color3.new(0, 0, 0)
-		template.TextSize = 14
-		template.BackgroundColor3 = Color3.new(0.203922, 0.203922, 0.203922)
+		local template = Instance.new("CanvasGroup")
+		template.AnchorPoint = Vector2.new(0, 1)
+		template.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
+		template.BackgroundTransparency = 0.699999988079071
 		template.BorderColor3 = Color3.new(0, 0, 0)
 		template.BorderSizePixel = 0
-		template.Size = UDim2.new(1, 0, 0.129999995, 0)
+		template.Position = UDim2.new(0, 0, 1, 0)
+		template.GroupTransparency = 1
+		template.Size = UDim2.new(0, 200, 1, 0)
 		template.Visible = false
 		template.Name = "template"
-		template.AnchorPoint = Vector2.new(0.5, 0)
 		template.Parent = holder
 
-		local uicorner = Instance.new("UICorner")
-		uicorner.CornerRadius = UDim.new(0, 6)
-		uicorner.Parent = template
-
-		local uistroke = Instance.new("UIStroke")
-		uistroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		uistroke.Color = Color3.new(1, 1, 1)
-		uistroke.Parent = template
+		local thin = Instance.new("Frame")
+		thin.BackgroundColor3 = Color3.new(0.338407, 1, 0)
+		thin.BackgroundTransparency = 0.25
+		thin.BorderColor3 = Color3.new(0, 0, 0)
+		thin.BorderSizePixel = 0
+		thin.Size = UDim2.new(1, 0, 0.00499999989, 0)
+		thin.Visible = true
+		thin.Name = "thin"
+		thin.Parent = template
+		thin:AddTag("rgb")
 
 		local title = Instance.new("TextLabel")
-		title.Font = Enum.Font.Unknown
-		title.Text = "PRISMA"
-		title.TextColor3 = Color3.new(1, 1, 1)
+		title.Font = Enum.Font.TitilliumWeb
+		title.Text = "Prisma"
+		title.TextColor3 = Color3.new(0.972549, 0.972549, 0.972549)
 		title.TextScaled = true
-		title.TextSize = 14
-		title.TextStrokeColor3 = Color3.new(1, 1, 1)
+		title.TextSize = 27
 		title.TextWrapped = true
-		title.AnchorPoint = Vector2.new(0.5, 0)
-		title.BackgroundColor3 = Color3.new(1, 1, 1)
+		title.Active = true
+		title.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
 		title.BackgroundTransparency = 1
-		title.BorderColor3 = Color3.new(0, 0, 0)
+		title.BorderColor3 = Color3.new(0.972549, 0.972549, 0.972549)
 		title.BorderSizePixel = 0
-		title.Position = UDim2.new(0.5, 0, 0, 0)
-		title.Size = UDim2.new(1, 0, 0.400000006, 0)
+		title.Position = UDim2.new(0, 0, 0.0199999996, 0)
+		title.Selectable = true
+		title.Size = UDim2.new(0, 200, 0, 25)
 		title.Visible = true
+		title.ZIndex = 5
 		title.Name = "title"
 		title.Parent = template
 
-		local uipadding = Instance.new("UIPadding")
-		uipadding.PaddingBottom = UDim.new(0, 5)
-		uipadding.PaddingLeft = UDim.new(0, 5)
-		uipadding.PaddingRight = UDim.new(0, 5)
-		uipadding.PaddingTop = UDim.new(0, 5)
-		uipadding.Parent = template
-
-		local line = Instance.new("Frame")
-		line.AnchorPoint = Vector2.new(0.5, 0.5)
-		line.BackgroundColor3 = Color3.new(1, 1, 1)
-		line.BorderColor3 = Color3.new(0, 0, 0)
-		line.BorderSizePixel = 0
-		line.Position = UDim2.new(0.5, 0, 0.400000006, 0)
-		line.Size = UDim2.new(1, 0, 0, 1)
-		line.Visible = true
-		line.Name = "line"
-		line.Parent = template
-
-		local contents = Instance.new("TextLabel")
-		contents.Font = Enum.Font.Unknown
-		contents.RichText = true
-		contents.Text = "Noclip disabled"
-		contents.TextColor3 = Color3.new(1, 1, 1)
-		contents.TextScaled = true
-		contents.TextSize = 14
-		contents.TextStrokeColor3 = Color3.new(1, 1, 1)
-		contents.TextWrapped = true
-		contents.AnchorPoint = Vector2.new(0.5, 1)
-		contents.BackgroundColor3 = Color3.new(1, 1, 1)
-		contents.BackgroundTransparency = 1
-		contents.BorderColor3 = Color3.new(0, 0, 0)
-		contents.BorderSizePixel = 0
-		contents.Position = UDim2.new(0.5, 0, 1, 0)
-		contents.Size = UDim2.new(1, 0, 0.5, 0)
-		contents.Visible = true
-		contents.Name = "contents"
-		contents.Parent = template
+		local description = Instance.new("TextLabel")
+		description.Font = Enum.Font.TitilliumWeb
+		description.Text = "Noclip Off"
+		description.TextColor3 = Color3.new(0.972549, 0.972549, 0.972549)
+		description.TextScaled = true
+		description.TextSize = 27
+		description.TextWrapped = true
+		description.Active = true
+		description.AnchorPoint = Vector2.new(0, 1)
+		description.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
+		description.BackgroundTransparency = 1
+		description.BorderColor3 = Color3.new(0.972549, 0.972549, 0.972549)
+		description.BorderSizePixel = 0
+		description.Position = UDim2.new(0, 0, 1, 0)
+		description.Selectable = true
+		description.Size = UDim2.new(1, 0, 0.800000012, 0)
+		description.Visible = true
+		description.ZIndex = 5
+		description.Name = "description"
+		description.Parent = template
 
 		local uitext_size_constraint = Instance.new("UITextSizeConstraint")
-		uitext_size_constraint.MaxTextSize = 25
-		uitext_size_constraint.Parent = contents
+		uitext_size_constraint.MaxTextSize = 30
+		uitext_size_constraint.Parent = description
+
+		local uilist_layout = Instance.new("UIListLayout")
+		uilist_layout.Padding = UDim.new(0, 3)
+		uilist_layout.FillDirection = Enum.FillDirection.Horizontal
+		uilist_layout.SortOrder = Enum.SortOrder.LayoutOrder
+		uilist_layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+		uilist_layout.Parent = holder
 	end
 
-	local holder = GUI.holder
+	local holder = GUI:FindFirstChildOfClass("TextBox"):FindFirstChild("holder")
 
 	local notification = holder:FindFirstChild("template"):Clone()
 
-	notification.contents.Text = text
+	notification.description.Text = text
 	notification.Visible = true
 	notification.Parent = holder
-	notification.Size = UDim2.new(1, 0, 0, 0)
+	notification.Size = UDim2.new(0, 200, 0, 0)
 
 	tweenservice:Create(notification, TweenInfo.new(0.1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		Size = UDim2.new(1, 0, 0.129999995, 0)
-	}):Play()
-	tweenservice:Create(notification:FindFirstChildOfClass("UIStroke"), TweenInfo.new(0.05, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		Thickness = 1
-	}):Play()
-	tweenservice:Create(notification.line, TweenInfo.new(0.05, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		BackgroundTransparency = 0
-	}):Play()
-
-	tweenservice:Create(notification.line, TweenInfo.new(lifetime, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {
-		Size = UDim2.new(0, 0, 0, 1)
+		Size = UDim2.new(0, 200, 1, 0),
+		GroupTransparency = 0
 	}):Play()
 
 	delay(lifetime, function()
-		notification.title.Visible = false
-		notification.contents.Visible = false
-		tweenservice:Create(notification:FindFirstChildOfClass("UIStroke"), TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-			Thickness = 0
+		local tween = tweenservice:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 200, 0, 0),
+			GroupTransparency = 1
 		}):Play()
-		tweenservice:Create(notification.line, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-			BackgroundTransparency = 1
-		}):Play()
-		local tween = tweenservice:Create(notification, TweenInfo.new(0.25, Enum.EasingStyle.Exponential), {
-			Size = UDim2.new(1, 0, 0, 0)
-		})
-		tween:Play()
-
-		tween.Completed:Wait()
+		task.wait(0.3)
 		notification:Destroy()
 	end)
 end
