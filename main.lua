@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.7.16 </#FV>"
+prisma.version = "<!#FV> 2.7.17 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -173,6 +173,7 @@ uis.InputBegan:Connect(function(key, chatting)
 end)
 local cmdTween = true
 local versionTag = `Prisma | v{prisma.version}`
+input.Text = versionTag
 
 input.Focused:Connect(function()
 	autoComplete()
