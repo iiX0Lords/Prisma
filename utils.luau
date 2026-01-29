@@ -10,7 +10,7 @@ function Utils.FetchOffsets()
     return offsets or {}
 end
 
-local Offsets = {
+Utils.Offsets = {
     SeatPart = 0x120,
     Name = 0xB0,
     CameraRotation = 0xF8,
@@ -22,12 +22,12 @@ local Offsets = {
 }
 
 for key, value in pairs(Utils.FetchOffsets()) do
-    Offsets[key] = value
+    Utils.Offsets[key] = value
 end
 
 function Utils.IsUnsafe()
     local success = pcall(function()
-        memory_read("string", workspace.Address + Offsets.Name)
+        memory_read("string", workspace.Address + Utils.Offsets.Name)
     end)
     return success
 end
@@ -90,7 +90,7 @@ function Utils.Camera.LookDirection()
     if not camera and not camera.Address then return end
 
     local address = camera.Address
-    local r = Offsets.CameraRotation
+    local r = Utils.Offsets.CameraRotation
     local r02 = memory_read("float", address + r + 0x8)
     local r12 = memory_read("float", address + r + 0x14)
     local r22 = memory_read("float", address + r + 0x20)
@@ -99,7 +99,7 @@ end
 function Utils.Camera.SetRotation(right, up, forward)
     local camera = workspace.CurrentCamera
     if not camera or not camera.Address then return end
-    local addr = camera.Address + Offsets.CameraRotation
+    local addr = camera.Address + Utils.Offsets.CameraRotation
 
     local back = Vector3.new(-forward.X, -forward.Y, -forward.Z)
 
@@ -118,10 +118,8 @@ end
 function Utils.Camera.SetPosition(position)
     local camera = workspace.CurrentCamera
     if not camera or not camera.Address then return end
-    local addr = camera.Address + Offsets.CameraPos
+    local addr = camera.Address + Utils.Offsets.CameraPos
     memory_write("float", addr + 0x0, position.X)
     memory_write("float", addr + 0x4, position.Y)
     memory_write("float", addr + 0x8, position.Z)
 end
-
-return Utils
