@@ -38,6 +38,14 @@ function Utils.ViewportSize()
     return camera.ViewportSize
 end
 
+function Utils.Notify(text : string, timeOut : number, additional : string)
+    if not additional then
+        notify("Prisma", text, timeOut)
+    else
+        notify(`Prisma | {additional}`, text, timeOut)
+    end
+end
+
 Utils.Math = {}
 function Utils.Math.MultiplyVector(a, b)
     if not a or not b then return end
