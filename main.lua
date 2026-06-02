@@ -11,7 +11,7 @@ end
 --- Static ---
 prisma = _G.prisma
 prisma.commands = {}
-prisma.version = "<!#FV> 2.8.18 </#FV>"
+prisma.version = "<!#FV> 2.9.20 </#FV>"
 prisma.version = string.sub(prisma.version,8,13)
 prisma.binds = {}
 
@@ -36,192 +36,446 @@ local QEfly = true
 local flyspeed = 1
 local vehicleflyspeed = 1
 
+local ui = {}
 
-local GUI = nil
-function initUi()
-
-local gui = Instance.new("ScreenGui")
-gui.IgnoreGuiInset = true
-gui.ResetOnSpawn = false
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-gui.Name = "prisma"
-gui.Parent = game.CoreGui
-GUI = gui
-
-local input = Instance.new("TextBox")
-input.Font = Enum.Font.TitilliumWeb
-input.Text = "Prisma | v3.2.1"
-input.TextColor3 = Color3.new(0.972549, 0.972549, 0.972549)
-input.TextScaled = true
-input.TextSize = 27
-input.TextWrapped = true
-input.AnchorPoint = Vector2.new(0, 1)
-input.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
-input.BackgroundTransparency = 0.699999988079071
-input.BorderColor3 = Color3.new(0.972549, 0.972549, 0.972549)
-input.BorderSizePixel = 0
-input.Position = UDim2.new(0, 0, 1, 0)
-input.Size = UDim2.new(0, 200, 0, 25)
-input.Visible = true
-input.ZIndex = 5
-input.Name = "CMDbar"
-input.Parent = gui
-
-local uitext_size_constraint = Instance.new("UITextSizeConstraint")
-uitext_size_constraint.MaxTextSize = 20
-uitext_size_constraint.Parent = input
-
-local contents = Instance.new("CanvasGroup")
-contents.GroupTransparency = 1
-contents.AnchorPoint = Vector2.new(0.5, 1)
-contents.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
-contents.BackgroundTransparency = 0.699999988079071
-contents.BorderColor3 = Color3.new(0, 0, 0)
-contents.BorderSizePixel = 0
-contents.Position = UDim2.new(0.5, 0, 9, 0)
-contents.Size = UDim2.new(1, 0, 0, 200)
-contents.Visible = true
-contents.Name = "contents"
-contents.Parent = input
-
-local template = Instance.new("TextLabel")
-template.Font = Enum.Font.TitilliumWeb
-template.Text = "Fly"
-template.TextColor3 = Color3.new(1, 1, 1)
-template.TextSize = 23
-template.TextXAlignment = Enum.TextXAlignment.Left
-template.Visible = false
-template.BackgroundColor3 = Color3.new(1, 1, 1)
-template.BackgroundTransparency = 1
-template.BorderColor3 = Color3.new(0, 0, 0)
-template.BorderSizePixel = 0
-template.Size = UDim2.new(1, 0, 0.150000006, 0)
-template.Visible = true
-template.Parent = contents
-
-local uipadding = Instance.new("UIPadding")
-uipadding.PaddingLeft = UDim.new(0, 5)
-uipadding.PaddingTop = UDim.new(0, 5)
-uipadding.Parent = contents
-
-local uicorner = Instance.new("UICorner")
-uicorner.CornerRadius = UDim.new(0, 4)
-uicorner.Parent = contents
-
-local thin = Instance.new("Frame")
-thin.BackgroundColor3 = Color3.new(0.338407, 1, 0)
-thin.BackgroundTransparency = 0.25
-thin.BorderColor3 = Color3.new(0, 0, 0)
-thin.BorderSizePixel = 0
-thin.Size = UDim2.new(1, 0, 0.0299999993, 0)
-thin.Visible = true
-thin.Name = "thin"
-thin.Parent = input
-thin:AddTag("rgb")
-
-local uigrid = Instance.new("UIGridLayout")
-uigrid.Parent = contents
-uigrid.CellPadding = UDim2.new(0,0,0,0)
-uigrid.CellSize = UDim2.new(1, 0, 0.13, 0)
-uigrid.FillDirection = Enum.FillDirection.Vertical
-
-
-
-local function autoComplete()
-
-	for i,v in pairs(contents:GetChildren()) do
-		if v:IsA("TextLabel") then
-			v:Destroy()
-		end
-	end
-
-	local commands = {}
-
-	for i,v in pairs(prisma.commands) do
-		if v.Alias ~= nil then
-			if string.sub(v.Command, 1, string.len(input.Text)) == input.Text or string.sub(v.Alias, 1, string.len(input.Text)) == input.Text then
-				table.insert(commands, v)
-			end
-		else
-			if string.sub(v.Command, 1, string.len(input.Text)) == input.Text then
-				table.insert(commands, v)
-			end
-		end
-	end
-	for i,v in pairs(prisma.commands) do
-		if not table.find(commands, v) then
-			table.insert(commands, v)
-		end
-	end
-
-	for i,v in ipairs(commands) do
-		local clone = template:Clone()
-		if v.Alias == nil then
-			clone.Text = string.upper(string.sub(v.Command, 1, 1))..string.sub(v.Command, 2, string.len(v.Command))
-		else
-			clone.Text = `{string.upper(string.sub(v.Command, 1, 1))..string.sub(v.Command, 2, string.len(v.Command))} | {string.upper(string.sub(v.Alias, 1, 1))..string.sub(v.Alias, 2, string.len(v.Alias))}`
-		end
-		clone.Parent = contents
-		clone.Visible = true
-	end
-end
-
-uis.InputBegan:Connect(function(key, chatting)
-	if not chatting and key.KeyCode == Enum.KeyCode.RightAlt then
-		input:CaptureFocus()
-	end
-end)
-local cmdTween = true
-local versionTag = `Prisma | v{prisma.version}`
-input.Text = versionTag
-
-input.Focused:Connect(function()
-	autoComplete()
-	cmdTween = false
-	tweenservice:Create(contents, TweenInfo.new(.4,Enum.EasingStyle.Exponential), {
-		Position = UDim2.new(0.5, 0, 0, 0),
-		GroupTransparency = 0
-	}):Play()
-end)
-input.Changed:Connect(function(property)
-	if property == "Text" then
-		autoComplete()
-	end
-end)
-input.FocusLost:Connect(function(enterPressed)
-
-	if enterPressed then
-		prisma:parseInput(input.Text)
-	end
-
-	tweenservice:Create(contents, TweenInfo.new(1,Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-		Position = UDim2.new(0.5, 0, 9, 0),
-		GroupTransparency = 1
-	}):Play()
+function ui.Init(parent : Instance, commands : {})
 	
-	local middle = #versionTag / 2
-	cmdTween = true
-	for i = 0,middle do
-		
-		if cmdTween == false then
-			cmdTween = true
-			input.Text = ""
-			break
+	local commandLookup = {}
+
+	for _, cmd in ipairs(commands) do
+		commandLookup[cmd.Command:lower()] = cmd
+
+		if cmd.Alias then
+			commandLookup[cmd.Alias:lower()] = cmd
 		end
+	end
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "FluentAdminUI"
+	screenGui.ResetOnSpawn = false
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screenGui.Parent = parent
+
+	local cmdbarFrame = Instance.new("Frame")
+	cmdbarFrame.Name = "cmdbarFrame"
+	cmdbarFrame.Size = UDim2.new(0, 480, 0, 55)
+	cmdbarFrame.Position = UDim2.new(0.5, -240, 0.15, -20) 
+	cmdbarFrame.BackgroundColor3 = Color3.fromRGB(17, 17, 22)
+	cmdbarFrame.BackgroundTransparency = 1 
+	cmdbarFrame.BorderSizePixel = 0
+
+	local uiCorner = Instance.new("UICorner")
+	uiCorner.CornerRadius = UDim.new(0, 10)
+	uiCorner.Parent = cmdbarFrame
+
+	local uiStroke = Instance.new("UIStroke")
+	uiStroke.Color = Color3.fromRGB(255, 255, 255)
+	uiStroke.Transparency = 1 
+	uiStroke.Thickness = 1.5
+	uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+	local strokeGradient = Instance.new("UIGradient")
+	strokeGradient.Rotation = 0
+	strokeGradient.Parent = uiStroke
+	uiStroke.Parent = cmdbarFrame
+
+	local prefixLabel = Instance.new("TextLabel")
+	prefixLabel.Size = UDim2.new(0, 50, 1, 0)
+	prefixLabel.Position = UDim2.new(0, 5, 0, 0)
+	prefixLabel.BackgroundTransparency = 1
+	prefixLabel.Text = ">"
+	prefixLabel.Font = Enum.Font.GothamMedium
+	prefixLabel.TextSize = 22
+	prefixLabel.TextColor3 = Color3.fromRGB(180, 180, 210)
+	prefixLabel.TextTransparency = 1
+	prefixLabel.Parent = cmdbarFrame
+
+	local textBox = Instance.new("TextBox")
+	textBox.Name = "CmdInput"
+	textBox.Size = UDim2.new(1, -65, 1, 0)
+	textBox.Position = UDim2.new(0, 55, 0, 0)
+	textBox.BackgroundTransparency = 1
+	textBox.Font = Enum.Font.GothamMedium
+	textBox.TextSize = 18
+	textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	textBox.TextTransparency = 1
+	textBox.PlaceholderText = "Type a command..."
+	textBox.PlaceholderColor3 = Color3.fromRGB(110, 110, 125)
+	textBox.TextXAlignment = Enum.TextXAlignment.Left
+	textBox.CursorPosition = 0
+	textBox.ClearTextOnFocus = false
+	textBox.Parent = cmdbarFrame
+	textBox.Text = ""
+
+	local suggestionContainer = Instance.new("CanvasGroup")
+	suggestionContainer.Name = "Suggestions"
+	suggestionContainer.Size = UDim2.new(1, 0, 0, 0) 
+	suggestionContainer.Position = UDim2.new(0, 0, 1, 8) 
+	suggestionContainer.BackgroundColor3 = Color3.fromRGB(17, 17, 22)
+	suggestionContainer.BackgroundTransparency = 0.15
+	suggestionContainer.GroupTransparency = 1
+	suggestionContainer.BorderSizePixel = 0
+	suggestionContainer.Visible = false
+	suggestionContainer.Parent = cmdbarFrame
+
+	local SuggestionCorner = Instance.new("UICorner")
+	SuggestionCorner.CornerRadius = UDim.new(0, 10)
+	SuggestionCorner.Parent = suggestionContainer
+
+	local SuggestionStroke = uiStroke:Clone()
+	SuggestionStroke.Transparency = 1 
+	SuggestionStroke.Parent = suggestionContainer
+
+	local SuggestionPadding = Instance.new("UIPadding")
+	SuggestionPadding.PaddingTop = UDim.new(0, 6)
+	SuggestionPadding.PaddingBottom = UDim.new(0, 6)
+	SuggestionPadding.PaddingLeft = UDim.new(0, 6)
+	SuggestionPadding.PaddingRight = UDim.new(0, 6)
+	SuggestionPadding.Parent = suggestionContainer
+
+	local SuggestionLayout = Instance.new("UIListLayout")
+	SuggestionLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	SuggestionLayout.Padding = UDim.new(0, 4)
+	SuggestionLayout.Parent = suggestionContainer
+
+	cmdbarFrame.Parent = screenGui
+	
+	local function clearSuggestionFrames()
+		for _, child in ipairs(suggestionContainer:GetChildren()) do
+			if child:IsA("Frame") then
+				child:Destroy()
+			end
+		end
+	end
+
+	local function autoComplete(text)
+		text = text:lower()
+
+		local matches = {}
+
+		for _, cmd in ipairs(commands) do
+			local commandName = cmd.Command:lower()
+			local alias = cmd.Alias and cmd.Alias:lower()
+
+			local score = nil
+
+			if commandName == text then
+				score = 0
+			elseif alias == text then
+				score = 1
+			elseif commandName:sub(1, #text) == text then
+				score = 2
+			elseif alias and alias:sub(1, #text) == text then
+				score = 3
+			end
+
+			if score then
+				table.insert(matches, {
+					Command = cmd,
+					Score = score
+				})
+			end
+		end
+
+		table.sort(matches, function(a, b)
+			if a.Score ~= b.Score then
+				return a.Score < b.Score
+			end
+
+			return #a.Command.Command < #b.Command.Command
+		end)
+
+		local result = {}
+
+		for _, item in ipairs(matches) do
+			table.insert(result, item.Command)
+		end
+
+		return result
+	end
+
+	local currentTopSuggestion = nil
+	local animInfo = TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
+	local dismissInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local activeSuggestionTween = nil 
+	local activeStrokeTween = nil
+
+	local function clearSuggestions(animate)
+		currentTopSuggestion = nil
+
+		if activeSuggestionTween then activeSuggestionTween:Cancel() end
+		if activeStrokeTween then activeStrokeTween:Cancel() end
+
+		if animate then
+			activeSuggestionTween = tweenservice:Create(suggestionContainer, dismissInfo, {
+				Size = UDim2.new(1, 0, 0, 0),
+				GroupTransparency = 1
+			})
+			activeStrokeTween = tweenservice:Create(SuggestionStroke, dismissInfo, {
+				Transparency = 1
+			})
+
+			activeSuggestionTween:Play()
+			activeStrokeTween:Play()
+
+			activeSuggestionTween.Completed:Connect(function(playbackState)
+				if playbackState == Enum.PlaybackState.Completed and not currentTopSuggestion then
+					suggestionContainer.Visible = false
+					clearSuggestionFrames()
+				end
+			end)
+		else
+			suggestionContainer.Visible = false
+			suggestionContainer.Size = UDim2.new(1, 0, 0, 0)
+			suggestionContainer.GroupTransparency = 1
+			SuggestionStroke.Transparency = 1
+			clearSuggestionFrames()
+		end
+	end
+
+	local function createSuggestionItem(cmdName, description, isTopMatch)
+		local ItemFrame = Instance.new("Frame")
+		ItemFrame.Size = UDim2.new(1, 0, 0, 38)
+		ItemFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		ItemFrame.BackgroundTransparency = isTopMatch and 0.92 or 1
+		ItemFrame.BorderSizePixel = 0
+
+		local ItemCorner = Instance.new("UICorner")
+		ItemCorner.CornerRadius = UDim.new(0, 8)
+		ItemCorner.Parent = ItemFrame
+
+		local CmdLabel = Instance.new("TextLabel")
+		CmdLabel.Size = UDim2.new(0, 110, 1, 0)
+		CmdLabel.Position = UDim2.new(0, 12, 0, 0)
+		CmdLabel.BackgroundTransparency = 1
+		CmdLabel.Text = cmdName
+		CmdLabel.Font = Enum.Font.GothamBold
+		CmdLabel.TextSize = 14
+		CmdLabel.TextColor3 = isTopMatch and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 215)
+		CmdLabel.TextXAlignment = Enum.TextXAlignment.Left
+		CmdLabel.Parent = ItemFrame
+
+		local DescLabel = Instance.new("TextLabel")
+		DescLabel.Size = UDim2.new(1, -180, 1, 0)
+		DescLabel.Position = UDim2.new(0, 125, 0, 0)
+		DescLabel.BackgroundTransparency = 1
+		DescLabel.Text = description
+		DescLabel.Font = Enum.Font.Gotham
+		DescLabel.TextSize = 13
+		DescLabel.TextColor3 = isTopMatch and Color3.fromRGB(180, 180, 195) or Color3.fromRGB(130, 130, 145)
+		DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+		DescLabel.Parent = ItemFrame
+
+		if isTopMatch then
+			local TabHint = Instance.new("TextLabel")
+			TabHint.Size = UDim2.new(0, 50, 1, 0)
+			TabHint.Position = UDim2.new(1, -60, 0, 0)
+			TabHint.BackgroundTransparency = 1
+			TabHint.Text = "Tab ↹"
+			TabHint.Font = Enum.Font.GothamMedium
+			TabHint.TextSize = 12
+			TabHint.TextColor3 = Color3.fromRGB(150, 150, 170)
+			TabHint.TextXAlignment = Enum.TextXAlignment.Right
+			TabHint.Parent = ItemFrame
+		end
+
+		ItemFrame.Parent = suggestionContainer
+	end
+
+	local function updateAutocomplete()
+		local text = textBox.Text
+
+		local query = text:match("^%s*(%S+)")
+
+		if not query then
+			clearSuggestions(false)
+			return
+		end
+
+		query = query:lower()
+
+		local orderedMatches = autoComplete(query)
+
+		if #orderedMatches == 0 then
+			clearSuggestions(true)
+			return
+		end
+
+		clearSuggestionFrames()
+
+		suggestionContainer.Visible = true
+		currentTopSuggestion = orderedMatches[1].Command
+
+		for i, match in ipairs(orderedMatches) do
+			if match.Alias then
+				createSuggestionItem(
+					`{match.Command} | {match.Alias}`,
+					match.Description or "",
+					i == 1
+				)
+			else
+				createSuggestionItem(
+					match.Command,
+					match.Description or "",
+					i == 1
+				)
+			end
+
+			if i >= 5 then
+				break
+			end
+		end
+
+		runservice.Heartbeat:Wait()
+
+		local targetHeight =
+			SuggestionLayout.AbsoluteContentSize.Y
+			+ SuggestionPadding.PaddingTop.Offset
+			+ SuggestionPadding.PaddingBottom.Offset
+
+		if activeSuggestionTween then
+			activeSuggestionTween:Cancel()
+		end
+
+		if activeStrokeTween then
+			activeStrokeTween:Cancel()
+		end
+
+		activeSuggestionTween = tweenservice:Create(
+			suggestionContainer,
+			animInfo,
+			{
+				Size = UDim2.new(1, 0, 0, targetHeight),
+				GroupTransparency = 0
+			}
+		)
+
+		activeStrokeTween = tweenservice:Create(
+			SuggestionStroke,
+			animInfo,
+			{
+				Transparency = 0.35
+			}
+		)
+
+		activeSuggestionTween:Play()
+		activeStrokeTween:Play()
 		
-		input.Text = string.sub(versionTag, middle - i,middle + i)
-		wait(.08)
 	end
-end)
+	
+	local function updateSuggestionSize()
+		local targetHeight =
+			SuggestionLayout.AbsoluteContentSize.Y
+			+ SuggestionPadding.PaddingTop.Offset
+			+ SuggestionPadding.PaddingBottom.Offset
 
-runservice.RenderStepped:Connect(function()
-	for i,v in pairs(collectionService:GetTagged("rgb")) do
-		v.BackgroundColor3 = Color3.fromHSV(tick() % 20/20, 1, 1)
+		suggestionContainer.Size =
+			UDim2.new(1, 0, 0, targetHeight)
 	end
-end)
 
+	SuggestionLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateSuggestionSize)
+
+	textBox:GetPropertyChangedSignal("Text"):Connect(updateAutocomplete)
+
+	uis.InputBegan:Connect(function(input, gameProcessed)
+		if input.KeyCode == Enum.KeyCode.Tab and textBox:IsFocused() and currentTopSuggestion then
+			task.defer(function()
+				task.wait(0.01)
+				textBox.Text = currentTopSuggestion .. " "
+				textBox.CursorPosition = #textBox.Text + 1
+			end)
+		end
+	end)
+
+	local isVisible = false
+
+	local function toggleCmdBar(state)
+		isVisible = state
+
+		local frameTarget = isVisible and { Position = UDim2.new(0.5, -240, 0.15, 0), BackgroundTransparency = 0.15 } 
+			or { Position = UDim2.new(0.5, -240, 0.15, -20), BackgroundTransparency = 1 }
+
+		local strokeTarget = isVisible and { Transparency = 0.35 } or { Transparency = 1 }
+		local textTarget = isVisible and { TextTransparency = 0 } or { TextTransparency = 1 }
+
+		tweenservice:Create(cmdbarFrame, animInfo, frameTarget):Play()
+		tweenservice:Create(uiStroke, animInfo, strokeTarget):Play()
+		tweenservice:Create(prefixLabel, animInfo, textTarget):Play()
+		tweenservice:Create(textBox, animInfo, textTarget):Play()
+
+		if isVisible then
+			textBox.Text = ""
+			textBox:CaptureFocus()
+		else
+			textBox:ReleaseFocus()
+			clearSuggestions(false)
+		end
+	end
+
+	uis.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+		if input.KeyCode == Enum.KeyCode.RightAlt then
+			toggleCmdBar(true)
+		end
+	end)
+
+	textBox.FocusLost:Connect(function(enterPressed)
+		if uis:IsKeyDown(Enum.KeyCode.Tab) then return end
+
+		if enterPressed then
+			prisma:parseInput(textBox.Text)
+			toggleCmdBar(false)
+		else
+			toggleCmdBar(false)
+		end
+	end)
+
+	local rainbowColours = {
+		Color3.fromRGB(255, 98, 98),
+		Color3.fromRGB(255, 175, 90),
+		Color3.fromRGB(130, 255, 150),
+		Color3.fromRGB(100, 235, 255),
+		Color3.fromRGB(135, 130, 255),
+		Color3.fromRGB(255, 115, 235)
+	}
+
+	local function getRainbowColour(pos)
+		pos = pos % 1
+		local numColors = #rainbowColours
+		local exactIndex = pos * numColors + 1
+		local index1 = math.floor(exactIndex)
+		local index2 = index1 + 1
+		local fraction = exactIndex - index1
+
+		if index1 > numColors then index1 = 1 end
+		if index2 > numColors then index2 = 1 end
+
+		return rainbowColours[index1]:Lerp(rainbowColours[index2], fraction)
+	end
+
+	local progress = 0
+	local waveSpeed = 0.35
+
+	runservice.RenderStepped:Connect(function(dt)
+		progress = (progress + (dt * waveSpeed)) % 1
+
+		local newSequence = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.0, getRainbowColour(progress + 0.0)),
+			ColorSequenceKeypoint.new(0.2, getRainbowColour(progress + 0.2)),
+			ColorSequenceKeypoint.new(0.4, getRainbowColour(progress + 0.4)),
+			ColorSequenceKeypoint.new(0.6, getRainbowColour(progress + 0.6)),
+			ColorSequenceKeypoint.new(0.8, getRainbowColour(progress + 0.8)),
+			ColorSequenceKeypoint.new(1.0, getRainbowColour(progress + 1.0))
+		})
+
+		strokeGradient.Color = newSequence
+
+		local SuggestionGradient = SuggestionStroke:FindFirstChildOfClass("UIGradient")
+		if SuggestionGradient then
+			SuggestionGradient.Color = newSequence
+		end
+	end)
 end
-initUi()
 
 
 
@@ -247,6 +501,7 @@ function prisma:executeCommand(command,arg1,arg2,arg3)
 end
 
 function prisma:parseInput(txt)
+	print(txt)
 	if txt ~= " " and string.len(txt) ~= 0 then
 		local text = string.lower(txt)
 		if text == "" then return end
@@ -285,7 +540,7 @@ function prisma:parseInput(txt)
 	end
 end
 
-function prisma:addCMD(command,alias,callback,sendfull)
+function prisma:registerCommand(command, alias, description, callback, sendfull)
 	local fc = callback
 	if callback == nil or callback == "" or type(callback) == "string" then
 		fc = sendfull
@@ -294,13 +549,14 @@ function prisma:addCMD(command,alias,callback,sendfull)
 	table.insert(prisma.commands,{
 		Command = command,
 		Alias = alias,
+		Description = description or "",
 		CallBack = fc,
 		SendFull = sendfull,
 	})
 end
 
 --- binds system ---
-function prisma:addBind(keycode,Function)
+function prisma:registerBind(keycode,Function)
 	table.insert(prisma.binds,{
 		Key = keycode,
 		CallBack = Function,
@@ -343,11 +599,11 @@ function prisma:chat(text)
 		local channel = chat:WaitForChild("TextChannels"):WaitForChild("RBXSystem")
 
 		channel:DisplaySystemMessage(generateMsg({
-				Text = ">> [PRISMA]: "..text;
-				Font = "SourceSansBold";
-				Color = Color3.fromRGB(255, 255, 255):ToHex();
-				FontSize = 20;
-			})
+			Text = ">> [PRISMA]: "..text;
+			Font = "SourceSansBold";
+			Color = Color3.fromRGB(255, 255, 255):ToHex();
+			FontSize = 20;
+		})
 		)
 	end
 end
@@ -610,127 +866,16 @@ function formatText(text)
 	return text
 end
 
-
+--TODO
 function prisma:notify(text,lifetime,format)
-	lifetime = lifetime or 1
-	if not GUI:FindFirstChildOfClass("TextBox"):FindFirstChild("holder") then
-
-		local holder = Instance.new("Frame")
-		holder.AnchorPoint = Vector2.new(0, 1)
-		holder.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
-		holder.BackgroundTransparency = 1
-		holder.BorderColor3 = Color3.new(0, 0, 0)
-		holder.BorderSizePixel = 0
-		holder.Position = UDim2.new(1, 0, 1, 0)
-		holder.Size = UDim2.new(0, 500, 0, 125)
-		holder.Visible = true
-		holder.Name = "holder"
-		holder.Parent = GUI:FindFirstChildOfClass("TextBox")
-
-		local template = Instance.new("CanvasGroup")
-		template.AnchorPoint = Vector2.new(0, 1)
-		template.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
-		template.BackgroundTransparency = 0.699999988079071
-		template.BorderColor3 = Color3.new(0, 0, 0)
-		template.BorderSizePixel = 0
-		template.Position = UDim2.new(0, 0, 1, 0)
-		template.GroupTransparency = 1
-		template.Size = UDim2.new(0, 200, 1, 0)
-		template.Visible = false
-		template.Name = "template"
-		template.Parent = holder
-
-		local thin = Instance.new("Frame")
-		thin.BackgroundColor3 = Color3.new(0.338407, 1, 0)
-		thin.BackgroundTransparency = 0.25
-		thin.BorderColor3 = Color3.new(0, 0, 0)
-		thin.BorderSizePixel = 0
-		thin.Size = UDim2.new(1, 0, 0.00499999989, 0)
-		thin.Visible = true
-		thin.Name = "thin"
-		thin.Parent = template
-		thin:AddTag("rgb")
-
-		local title = Instance.new("TextLabel")
-		title.Font = Enum.Font.TitilliumWeb
-		title.Text = "Prisma"
-		title.TextColor3 = Color3.new(0.972549, 0.972549, 0.972549)
-		title.TextScaled = true
-		title.TextSize = 27
-		title.TextWrapped = true
-		title.Active = true
-		title.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
-		title.BackgroundTransparency = 1
-		title.BorderColor3 = Color3.new(0.972549, 0.972549, 0.972549)
-		title.BorderSizePixel = 0
-		title.Position = UDim2.new(0, 0, 0.0199999996, 0)
-		title.Selectable = true
-		title.Size = UDim2.new(0, 200, 0, 25)
-		title.Visible = true
-		title.ZIndex = 5
-		title.Name = "title"
-		title.Parent = template
-
-		local description = Instance.new("TextLabel")
-		description.Font = Enum.Font.TitilliumWeb
-		description.Text = "Noclip Off"
-		description.TextColor3 = Color3.new(0.972549, 0.972549, 0.972549)
-		description.TextScaled = true
-		description.TextSize = 27
-		description.TextWrapped = true
-		description.Active = true
-		description.AnchorPoint = Vector2.new(0, 1)
-		description.BackgroundColor3 = Color3.new(0.0666667, 0.0666667, 0.0666667)
-		description.BackgroundTransparency = 1
-		description.BorderColor3 = Color3.new(0.972549, 0.972549, 0.972549)
-		description.BorderSizePixel = 0
-		description.Position = UDim2.new(0, 0, 1, 0)
-		description.Selectable = true
-		description.Size = UDim2.new(1, 0, 0.800000012, 0)
-		description.Visible = true
-		description.ZIndex = 5
-		description.Name = "description"
-		description.Parent = template
-
-		local uitext_size_constraint = Instance.new("UITextSizeConstraint")
-		uitext_size_constraint.MaxTextSize = 30
-		uitext_size_constraint.Parent = description
-
-		local uilist_layout = Instance.new("UIListLayout")
-		uilist_layout.Padding = UDim.new(0, 3)
-		uilist_layout.FillDirection = Enum.FillDirection.Horizontal
-		uilist_layout.SortOrder = Enum.SortOrder.LayoutOrder
-		uilist_layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
-		uilist_layout.Parent = holder
-	end
-
-	local holder = GUI:FindFirstChildOfClass("TextBox"):FindFirstChild("holder")
-
-	local notification = holder:FindFirstChild("template"):Clone()
-
-	notification.description.Text = text
-	notification.Visible = true
-	notification.Parent = holder
-	notification.Size = UDim2.new(0, 200, 0, 0)
-
-	tweenservice:Create(notification, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-		Size = UDim2.new(0, 200, 1, 0),
-		GroupTransparency = 0
-	}):Play()
-
-	delay(lifetime, function()
-		local tween = tweenservice:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-			Size = UDim2.new(0, 200, 0, 0),
-			GroupTransparency = 1
-		}):Play()
-		task.wait(0.6)
-		notification:Destroy()
-	end)
+	local temp = Instance.new("Message", workspace)
+	temp.Text = text
+	debris:AddItem(temp, lifetime)
 end
 
 --- Binds ---
 
-prisma:addBind(Enum.KeyCode.V,function()
+prisma:registerBind(Enum.KeyCode.V,function()
 	if mouse.Target == nil then return end
 	pcall(function()
 		local humanoid = getRoot().Parent:FindFirstChild("Humanoid")
@@ -747,7 +892,7 @@ prisma:addBind(Enum.KeyCode.V,function()
 	end)
 end)
 
-prisma:addBind(Enum.KeyCode.F5,function()
+prisma:registerBind(Enum.KeyCode.F5,function()
 	if FLYING then
 		prisma:executeCommand("unfly")
 	else
@@ -757,7 +902,7 @@ end)
 
 local Noclipping = nil
 local Clip = true
-prisma:addBind(Enum.KeyCode.F6,function()
+prisma:registerBind(Enum.KeyCode.F6,function()
 	if Clip then
 		Clip = false
 		wait(0.1)
@@ -781,7 +926,7 @@ prisma:addBind(Enum.KeyCode.F6,function()
 	end
 end)
 
-prisma:addBind(Enum.KeyCode.F3,function()
+prisma:registerBind(Enum.KeyCode.F3,function()
 	if FLYING then
 		NOFLY()
 	else
@@ -792,12 +937,12 @@ prisma:addBind(Enum.KeyCode.F3,function()
 end)
 
 local delClipboard = {}
-prisma:addBind(Enum.KeyCode.Delete,function()
+prisma:registerBind(Enum.KeyCode.Delete,function()
 	prisma:executeCommand("clickdelete")
 end)
 
 local profly = false
-prisma:addBind(Enum.KeyCode.F2,function()
+prisma:registerBind(Enum.KeyCode.F2,function()
 	if not profly then
 		profly = true
 
@@ -848,16 +993,16 @@ prisma:addBind(Enum.KeyCode.F2,function()
 	end
 end)
 
-prisma:addBind(Enum.KeyCode.F8,function()
+prisma:registerBind(Enum.KeyCode.F8,function()
 	prisma:executeCommand("breakvel")
 	prisma:notify("Broken Velocity", 0.5)
 end)
 
-prisma:addBind(Enum.KeyCode.F10,function()
+prisma:registerBind(Enum.KeyCode.F10,function()
 	prisma:executeCommand("launch")
 end)
 
-prisma:addBind(Enum.KeyCode.T,function()
+prisma:registerBind(Enum.KeyCode.T,function()
 	if profly then
 		local Sound = Instance.new("Sound",plr.Character.HumanoidRootPart)
 		Sound.SoundId = "rbxassetid://4580495407"
@@ -901,14 +1046,14 @@ prisma:addBind(Enum.KeyCode.T,function()
 	end
 end)
 
-prisma:addBind(Enum.KeyCode.F1,function()
+prisma:registerBind(Enum.KeyCode.F1,function()
 	prisma:executeCommand("through")
 end)
 
 --- Commands ---
 
 
-prisma:addCMD("togglebind","bind",function(arg)
+prisma:registerCommand("togglebind","bind", "Toggles binds hotkey", function(arg)
 	local an;
 	if arg == "all" then
 		prisma:notify("Toggled All Binds")
@@ -950,7 +1095,7 @@ function breakConnection(name)
 	end
 end
 
-prisma:addCMD("nameesp","esp",function(arg)
+prisma:registerCommand("nameesp","esp", "Player name esp", function(arg)
 	local cmdlp = game.Players.LocalPlayer
 	local cmdp = game.Players
 
@@ -1052,11 +1197,8 @@ game.Players.PlayerRemoving:Connect(function(player)
 	breakConnection(player.Name)
 end)
 
-prisma:addCMD("debugconnectiontest","dbct",function()
-	print(#espConnections)
-end)
 
-prisma:addCMD("unesp",nil,function()
+prisma:registerCommand("unesp", nil, "Turns off nameesp", function()
 	ESPNEnabled = false
 	pcall(function()
 		for i,v in pairs(game.Players:GetPlayers()) do
@@ -1069,7 +1211,7 @@ prisma:addCMD("unesp",nil,function()
 	end)
 end)
 
-prisma:addCMD("walkspeed","ws",function(arg)
+prisma:registerCommand("walkspeed", "ws", "Set walkspeed", function(arg)
 	local speed = tonumber(arg)
 	local suc = pcall(function()
 		if speed == nil then
@@ -1080,25 +1222,26 @@ prisma:addCMD("walkspeed","ws",function(arg)
 	task.wait(.3)
 end)
 
-prisma:addCMD("jumppower","jp",function(arg)
+prisma:registerCommand("jumppower", "jp", "Set jumppower", function(arg)
 	local jump = tonumber(arg)
 	local suc = pcall(function()
 		if jump == nil then
 			local error = plr.Character.Position
 		end
+		plr.Character.Humanoid.UseJumpPower = true
 		plr.Character.Humanoid.JumpPower = jump
 	end)
 	task.wait(.3)
 end)
 
-prisma:addCMD("suicide","reset",function(arg)
+prisma:registerCommand("suicide", "reset", "Resets your character", function(arg)
 	plr.Character:BreakJoints()
 	task.wait(.1)
 end)
 
 walkspeedLoop = nil
 
-prisma:addCMD("loopws","lws",function(speed)
+prisma:registerCommand("loopws", "lws", "Loop set walkspeed", function(speed)
 	local suc = pcall(function()
 		local setspeed = tonumber(speed)
 		if setspeed == nil then
@@ -1115,7 +1258,7 @@ prisma:addCMD("loopws","lws",function(speed)
 	task.wait(.3)
 end)
 
-prisma:addCMD("unloopws","unlws",function()
+prisma:registerCommand("unloopws", "unlws", "Break loopws", function()
 	pcall(function()
 		walkspeedLoop:Disconnect()
 		walkspeedLoop = nil
@@ -1123,7 +1266,7 @@ prisma:addCMD("unloopws","unlws",function()
 	end)
 end)
 
-prisma:addCMD("clickdelete","delete",function()
+prisma:registerCommand("clickdelete", "delete", "Deletes part at mouse", function()
 	pcall(function()
 		local target = mouse.Target
 		if target:IsA("BasePart") then
@@ -1137,7 +1280,7 @@ prisma:addCMD("clickdelete","delete",function()
 	end)
 end)
 
-prisma:addCMD("undodelete","undel",function()
+prisma:registerCommand("undodelete", "undel", "Undoes clickdelete", function()
 	local tab = delClipboard[#delClipboard]
 	if tab ~= nil and tab ~= 0 then
 		local inst = tab.instance:Clone()
@@ -1149,7 +1292,7 @@ prisma:addCMD("undodelete","undel",function()
 	end
 end)
 
-prisma:addCMD("goto","to","Teleports to specified player",function(player)
+prisma:registerCommand("goto", "to", "Teleports to specified player", function(player)
 	target = prisma:findplr(player)
 	if target then
 		plr.Character.Humanoid.Jump = true
@@ -1157,27 +1300,27 @@ prisma:addCMD("goto","to","Teleports to specified player",function(player)
 	end
 end)
 
-prisma:addCMD("gravity","grav",function(arg)
+prisma:registerCommand("gravity", "grav", "Set workspace gravity", function(arg)
 	local grav = tonumber(arg) or 196.2
 	workspace.Gravity = grav
 end)
 
-prisma:addCMD("sit",nil,function()
+prisma:registerCommand("sit", nil, "Make yourself sit", function()
 	plr.Character.Humanoid.Sit = true
 end)
 
-prisma:addCMD("up",nil,function(amount)
+prisma:registerCommand("up", nil, "Teleport upwards", function(amount)
 	local degree = tonumber(amount) or 0
 	plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + Vector3.new(0,degree,0)
 end)
 
-prisma:addCMD("forward",nil,function(amount)
+prisma:registerCommand("forward", nil, "Teleport forwards", function(amount)
 	local degree = tonumber(amount) or 0
 	plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,degree*-1)
 end)
 
 stunned = false
-prisma:addCMD("stun","ragdoll",function()
+prisma:registerCommand("stun", "ragdoll", "Stun yourself", function()
 	stunned = true
 	repeat
 		wait()
@@ -1187,14 +1330,14 @@ prisma:addCMD("stun","ragdoll",function()
 	plr.Character.Humanoid.PlatformStand = true
 end)
 
-prisma:addCMD("unstun","unragdoll",function()
+prisma:registerCommand("unstun", "unragdoll", "Unstun yourself", function()
 	stunned = false
 	repeat wait()
 		plr.Character.Humanoid.PlatformStand = false
 	until plr.Character.Humanoid.PlatformStand == false
 end)
 
-prisma:addCMD("fixcam",nil,function()
+prisma:registerCommand("fixcam", nil, "Resets cam", function()
 	workspace.CurrentCamera:remove()
 	wait(.1)
 	repeat wait() until plr.Character ~= nil
@@ -1208,7 +1351,7 @@ end)
 
 local desp = false
 
-prisma:addCMD("health",nil,nil,function()
+prisma:registerCommand("health", nil, "Enables player health esp", function()
 
 	-- local espBottle = Instance.new("Folder",plr.PlayerGui)
 	-- espBottle.Name = "DetailedEsp"
@@ -1272,7 +1415,7 @@ prisma:addCMD("health",nil,nil,function()
 end)
 
 
-prisma:addCMD("unhealth",nil,nil,function()
+prisma:registerCommand("unhealth", nil, "Turns off health esp", function()
 	desp = false
 	task.wait(1)
 	for i,v in pairs(game.Players:GetPlayers()) do
@@ -1287,12 +1430,12 @@ prisma:addCMD("unhealth",nil,nil,function()
 end)
 
 
-prisma:addCMD("detailesp","desp",nil,function(tracers)
+prisma:registerCommand("detailesp", "desp", "Enables nameesp and health esp", function(tracers)
 	prisma:executeCommand("health")
 	prisma:executeCommand("nameesp")
 end)
 
-prisma:addCMD("launch",nil,nil,function(multiplier)
+prisma:registerCommand("launch", nil, "Launch yourself upwards with velocity", function(multiplier)
 	multiplier = tonumber(multiplier) or 1
 	local char = plr.Character
 	local vel = Instance.new("BodyVelocity",char.HumanoidRootPart)
@@ -1302,11 +1445,11 @@ prisma:addCMD("launch",nil,nil,function(multiplier)
 	debris:AddItem(vel,.15)
 end)
 
-prisma:addCMD("breakvelocity","breakvel",nil,function()
+prisma:registerCommand("breakvelocity", "breakvel", "Removes all velocity", function()
 	plr.Character.HumanoidRootPart.Velocity = Vector3.new(0,0,0)
 end)
 
-prisma:addCMD("nocdlimits",nil,nil,function()
+prisma:registerCommand("nocdlimits", nil, "Remove clickdetector limits", function()
 	for i,v in pairs(workspace:GetDescendants()) do
 		if v:IsA("ClickDetector") then
 			v.MaxActivationDistance = math.huge
@@ -1314,7 +1457,7 @@ prisma:addCMD("nocdlimits",nil,nil,function()
 	end
 end)
 
-prisma:addCMD("say","talk",nil,function(message)
+prisma:registerCommand("say", "talk", "Talk without chat", function(message)
 	local args = {
 		[1] = message,
 		[2] = "All"
@@ -1324,51 +1467,51 @@ prisma:addCMD("say","talk",nil,function(message)
 
 end,true)
 
-prisma:addCMD("freeze",nil,nil,function()
+prisma:registerCommand("freeze", "anchor", "Anchors you", function()
 	getRoot().Anchored = true
 end)
 
-prisma:addCMD("unfreeze","thaw",nil,function()
+prisma:registerCommand("unfreeze", "thaw", "Unanchors you", function()
 	getRoot().Anchored = false
 end)
 
 local animTrack
-prisma:addCMD('dance', nil, "Dances",function()
+prisma:registerCommand('dance', nil, "Dances",function()
 	local dances = {"27789359", "30196114", "248263260", "45834924", "33796059", "28488254", "52155728"}
 	local animation = Instance.new("Animation")        animation.AnimationId = "rbxassetid://" .. dances[math.random(1, #dances)]
 	animTrack = plr.Character:FindFirstChildOfClass('Humanoid'):LoadAnimation(animation)
 	animTrack:Play()
 end)
 
-prisma:addCMD('undance','nodance', "Stops Dancing",function()
+prisma:registerCommand('undance','nodance', "Stops Dancing",function()
 	if animTrack then
 		animTrack:Stop()
 		animTrack:Destroy()
 	end
 end)
 
-prisma:addCMD("fly",nil,nil,function(speed)
+prisma:registerCommand("fly", nil, "Velocity fly", function(speed)
 	NOFLY()
 	wait()
 	sFLY()
 	flyspeed = tonumber(speed) or 1
 end)
 
-prisma:addCMD("unfly",nil,nil,function(speed)
+prisma:registerCommand("unfly", nil, "Toggles off fly", function(speed)
 	NOFLY()
 end)
 
-prisma:addCMD("vflyspeed","vspeed",nil,function(speed)
+prisma:registerCommand("vflyspeed", "vspeed", "Set vfly speed", function(speed)
 	vehicleflyspeed = tonumber(speed) or 1
 end)
 
-prisma:addCMD("flyspeed","fspeed",nil,function(speed)
+prisma:registerCommand("flyspeed", "fspeed", "Set fly speed", function(speed)
 	flyspeed = tonumber(speed) or 1
 end)
 
 local cor
 local spawnpart
-prisma:addCMD("setspawn","spawn",nil,function()
+prisma:registerCommand("setspawn", "spawn", "Set custom spawnpoint", function()
 	local x,y,z = round(plr.Character.HumanoidRootPart.Position.X),round(plr.Character.HumanoidRootPart.Position.Y),round(plr.Character.HumanoidRootPart.Position.Z)
 	prisma:notify("Set spawn at "..tostring(Vector3.new(x,y,z)),2)
 	if cor ~= nil then
@@ -1405,7 +1548,7 @@ prisma:addCMD("setspawn","spawn",nil,function()
 
 end)
 
-prisma:addCMD("deletespawn","unspawn",nil,function()
+prisma:registerCommand("deletespawn", "unspawn", "Removes custom spawnpoint", function()
 	if cor ~= nil then
 		prisma:notify("Deleted spawn",2)
 		cor:Disconnect()
@@ -1413,7 +1556,7 @@ prisma:addCMD("deletespawn","unspawn",nil,function()
 	end
 end)
 
-prisma:addCMD("view",nil,nil,function(player)
+prisma:registerCommand("spectate", "view", "Spectate a player", function(player)
 	target = prisma:findplr(player)
 	if target then
 		plr.Character.Humanoid.Jump = true
@@ -1421,11 +1564,11 @@ prisma:addCMD("view",nil,nil,function(player)
 	end
 end)
 
-prisma:addCMD("unview",nil,nil,function(player)
+prisma:registerCommand("unview", nil, "Stop spectating", function(player)
 	workspace.CurrentCamera.CameraSubject = getRoot().Parent.Humanoid
 end)
 
-prisma:addCMD("fullbright","fb",nil,function()
+prisma:registerCommand("fullbright", "fb", "Makes the world bright", function()
 	game.Lighting.Brightness = 2
 	game.Lighting.ClockTime = 14
 	game.Lighting.FogEnd = 100000
@@ -1435,12 +1578,12 @@ end)
 
 local chams = false
 
-prisma:addCMD("serverpopulation","pop",function()
+prisma:registerCommand("serverpopulation", "pop", "Notifies server player count", function()
 	prisma:notify(#game.Players:GetPlayers().." players")
 end)
 
 local headsitRun
-prisma:addCMD("headsit","climb",function(arg)
+prisma:registerCommand("headsit", "climb", "Sit on a player's head", function(arg)
 	local target = prisma:findplr(arg)
 	if target then
 		headsitRun = runservice.RenderStepped:Connect(function()
@@ -1452,13 +1595,13 @@ prisma:addCMD("headsit","climb",function(arg)
 	end
 end)
 
-prisma:addCMD("unheadsit","unclimb",function(arg)
+prisma:registerCommand("unheadsit", "unclimb", "Stops headsitting", function(arg)
 	if headsitRun then
 		headsitRun:Disconnect()
 	end
 end)
 
-prisma:addCMD("showinvisible","sight",function(arg)
+prisma:registerCommand("showinvisible", "sight", "Makes all invisible parts visible", function(arg)
 	local affected = {}
 	for i,v in pairs(workspace:GetDescendants()) do
 		if v:IsA("Part") then
@@ -1474,7 +1617,7 @@ prisma:addCMD("showinvisible","sight",function(arg)
 	end
 end)
 
-prisma:addCMD("loopjp","llp",function(speed)
+prisma:registerCommand("loopjp", "llp", "Loops jumppower", function(speed)
 	local suc = pcall(function()
 		local setspeed = tonumber(speed)
 		if setspeed == nil then
@@ -1492,7 +1635,7 @@ prisma:addCMD("loopjp","llp",function(speed)
 end)
 
 
-prisma:addCMD("unloopjp","unljp",function()
+prisma:registerCommand("unloopjp", "unljp", "Stops loop jumppower", function()
 	pcall(function()
 		JumpLoop:Disconnect()
 		JumpLoop = nil
@@ -1546,7 +1689,7 @@ function updateWaypointFile()
 	writefile("prismaWaypoints.config", httpService:JSONEncode(globalWaypoints))
 end
 
-prisma:addCMD("waypoint","wp",function(name)
+prisma:registerCommand("waypoint", "wp", "Set a custom waypoint", function(name)
 	local found = false
 	for i,v in pairs(waypoints) do
 		if v.Name == name then
@@ -1574,7 +1717,7 @@ prisma:addCMD("waypoint","wp",function(name)
 	end
 end)
 
-prisma:addCMD("deletewaypoint","delwp",function(name)
+prisma:registerCommand("deletewaypoint", "delwp", "Delete a waypoint", function(name)
 	local found = false
 	for i,v in pairs(waypoints) do
 		if v.Name == name then
@@ -1591,7 +1734,7 @@ prisma:addCMD("deletewaypoint","delwp",function(name)
 	end
 end)
 
-prisma:addCMD("refresh","re",function()
+prisma:registerCommand("refresh", "re", "Refresh character", function()
 	local old = getRoot().CFrame
 	plr.Character:BreakJoints()
 	reloadev = plr.CharacterAdded:Connect(function()
@@ -1601,15 +1744,15 @@ prisma:addCMD("refresh","re",function()
 	end)
 end)
 
-prisma:addCMD("help",nil,function()
+prisma:registerCommand("help", nil, "Prints all available commands", function()
 	local amountOfCmds = #prisma.commands
 	for i,v in pairs(prisma.commands) do
-		print(v.Command)
+		print(v.Command, v.Description)
 	end
 	prisma:chat("Press F9 to see commands")
 end)
 
-prisma:addCMD("spin",nil,function(speed)
+prisma:registerCommand("spin", nil, "Spin in place", function(speed)
 	local spinSpeed = tonumber(speed) or 20
 	for i,v in pairs(getRoot():GetChildren()) do
 		if v.Name == "Spinning" then
@@ -1622,7 +1765,7 @@ prisma:addCMD("spin",nil,function(speed)
 	Spin.MaxTorque = Vector3.new(0, math.huge, 0)
 	Spin.AngularVelocity = Vector3.new(0,spinSpeed,0)
 end)
-prisma:addCMD("unspin",nil,function()
+prisma:registerCommand("unspin", nil, "Stop spinning", function()
 	for i,v in pairs(getRoot():GetChildren()) do
 		if v.Name == "Spinning" then
 			v:Destroy()
@@ -1631,7 +1774,7 @@ prisma:addCMD("unspin",nil,function()
 end)
 
 local undo
-prisma:addCMD("precisionflight","pfly",function(arg)
+prisma:registerCommand("precisionflight", "pfly", "CFrame fly", function(arg)
 	task.wait(1)
 	-- plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.rad(0),math.rad(180),math.rad(0))
 	-- workspace.CurrentCamera.CFrame = CFrame.new(0,0,0)
@@ -1709,11 +1852,11 @@ prisma:addCMD("precisionflight","pfly",function(arg)
 	end)
 end)
 
-prisma:addCMD("unprecisionflight","unpfly",function()
+prisma:registerCommand("unprecisionflight", "unpfly", "Stops CFrame fly", function()
 	undo()
 end)
 
-prisma:addCMD("precisionflightspeed","pflyspeed",function(integer)
+prisma:registerCommand("precisionflightspeed", "pflyspeed", "Change pfly speed", function(integer)
 	pfSpeed = tonumber(integer) or 100
 end)
 
@@ -1731,7 +1874,7 @@ function visualizeRay(origin,result)
 	end
 end
 
-prisma:addCMD("through","thru",function()
+prisma:registerCommand("through", "thru", "Teleport to the otherside of a part", function()
 	local function GetNormalFromFace(part, normalId)
 		return part.CFrame:VectorToWorldSpace(Vector3.FromNormalId(normalId))
 	end
@@ -1747,17 +1890,17 @@ prisma:addCMD("through","thru",function()
 			Enum.NormalId.Left,
 			Enum.NormalId.Right
 		}    
-	
+
 		for _, normalId in pairs( allFaceNormalIds ) do
 			if GetNormalFromFace(part, normalId):Dot(normalVector) > TOLERANCE_VALUE then
 				return normalId
 			end
 		end
-		
+
 		return nil
-	
+
 	end
-	
+
 	local function addRotation(part)
 		return part.CFrame.Rotation.X+part.CFrame.Rotation.Y+part.CFrame.Rotation.Z
 	end
@@ -1866,22 +2009,22 @@ uis.InputEnded:Connect(function(inputObject)
 	end
 end)
 
-prisma:addCMD("dodge","dod",function()
+prisma:registerCommand("dodge", "dod", "Teleport around while left clicking", function()
 	local dodgeoffset = 8
 	local dodgeRenderstep
-	
+
 	function dodgeEnable()
 		local function getRand()
 			return math.random(dodgeoffset*-1,dodgeoffset)
 		end
-		
-		
+
+
 		dodgeRenderstep = coroutine.create(function()
 			while task.wait(.1) do
 				if dodgeRenderstep == nil or dodgeRenderstep == false then
 					break
 				end
-				
+
 				if Held and dodgeEnabled then
 					teleportWithoutTween(origin.CFrame*CFrame.new(getRand(),math.random(0,dodgeoffset),getRand()))
 				end
@@ -1906,7 +2049,7 @@ prisma:addCMD("dodge","dod",function()
 	end
 end)
 
-prisma:addCMD("rejoin","rj",function()
+prisma:registerCommand("rejoin", "rj", "Rejoin current server", function()
 
 	local TeleportCheck = false
 	-- selene: allow(undefined_variable)
@@ -1929,20 +2072,20 @@ prisma:addCMD("rejoin","rj",function()
 end)
 
 local toolloop
-prisma:addCMD("toolloop","tool",function(arg)
+prisma:registerCommand("toolloop", "tool", "Loop activates currently equipped tool", function(arg)
 	toolloop = runservice.RenderStepped:Connect(function()
 		pcall(function()
 			plr.Character:FindFirstChildOfClass("Tool"):Activate()
 		end)
 	end)
 end)
-prisma:addCMD("untoolloop","unloop",function(arg)
+prisma:registerCommand("untoolloop", "unloop", "Stop toolloop", function(arg)
 	if toolloop then
 		toolloop:Disconnect()
 	end
 end)
 
-prisma:addCMD("hyrdo","rspy",function()
+prisma:registerCommand("hyrdo", "rspy", "Executes Hydroxide", function()
 	local owner = "Upbolt"
 	local branch = "revision"
 
@@ -1954,11 +2097,11 @@ prisma:addCMD("hyrdo","rspy",function()
 	webImport("ui/main")
 end)
 
-prisma:addCMD("dex",nil,function()
+prisma:registerCommand("dex", nil, "Executes Dex Explorer", function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
 end)
 
-prisma:addCMD("replaceshiftlockbind","replaceshift",function(arg)
+prisma:registerCommand("replaceshiftlockbind", "replaceshift", "Change shiftlock bind to Control", function(arg)
 	local keys = "LeftControl,RightControl"
 	local mouseLockController = plr.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("CameraModule"):WaitForChild("MouseLockController")
 	local obj = mouseLockController:FindFirstChild("BoundKeys")
@@ -1972,7 +2115,7 @@ prisma:addCMD("replaceshiftlockbind","replaceshift",function(arg)
 	end
 end)
 
-prisma:addCMD("locate", "lc", function(player)
+prisma:registerCommand("locate", "lc", "Highlights player", function(player)
 	target = prisma:findplr(player)
 	if target then
 		local highlight = Instance.new("Highlight",target.Character)
@@ -1986,7 +2129,7 @@ prisma:addCMD("locate", "lc", function(player)
 	end
 end)
 
-prisma:addCMD("unlocate", "unlc", function(player)
+prisma:registerCommand("unlocate", "unlc", "Removes highlight", function(player)
 	target = prisma:findplr(player)
 	if target then
 		local highlight = target.Character:FindFirstChild("Locate")
@@ -1994,13 +2137,15 @@ prisma:addCMD("unlocate", "unlc", function(player)
 	end
 end)
 
-prisma:addCMD("gotoposition", "gotopos", function(pos : string)
+prisma:registerCommand("gotoposition", "gotopos", "Goto Vector3 position", function(pos : string)
 	getRoot().CFrame = CFrame.new(Vector3.new(pos:match("(.+), (.+), (.+)")))
 end)
 
-prisma:addCMD("cobalt", "cb", function()
+prisma:registerCommand("cobalt", "cb", "Executes Cobalt Remote Spy", function()
 	loadstring(game:HttpGet("https://github.com/notpoiu/cobalt/releases/latest/download/Cobalt.luau"))()
 end)
+
+ui.Init(game.CoreGui, prisma.commands)
 
 -- prisma:chat("Loaded Prisma")
 -- task.wait(.05)
